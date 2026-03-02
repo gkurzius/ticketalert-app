@@ -53,7 +53,8 @@ If the feature is trivial and doesn't warrant full specification, update this wo
 
 Save to `{@artifacts_path}/plan.md`.
 
-### [ ] Step 1: Scaffold + UI System
+### [x] Step 1: Scaffold + UI System
+<!-- chat-id: 8a4fbdc6-62ae-42c7-a1f9-c2399de70caa -->
 
 Bootstrap the Next.js 14 App Router project and establish the full design system.
 

@@ -1,0 +1,10 @@
+node_modules/
+.next/
+dist/
+build/
+.cache/
+*.log
+.env.local
+.env.*.local
+.env
+out/
