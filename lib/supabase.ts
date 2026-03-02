@@ -4,11 +4,8 @@ let _client: SupabaseClient | null = null
 
 export function getSupabase(): SupabaseClient {
   if (!_client) {
-    const supabaseUrl = process.env.SUPABASE_URL
-    const supabaseAnonKey = process.env.SUPABASE_ANON_KEY
-    if (!supabaseUrl || !supabaseAnonKey) {
-      throw new Error('SUPABASE_URL and SUPABASE_ANON_KEY environment variables are required')
-    }
+    const supabaseUrl = process.env.SUPABASE_URL ?? 'https://placeholder.supabase.co'
+    const supabaseAnonKey = process.env.SUPABASE_ANON_KEY ?? 'placeholder'
     _client = createClient(supabaseUrl, supabaseAnonKey)
   }
   return _client

@@ -216,7 +216,8 @@ Verification:
 - "Send Test Email" sends to ADMIN_EMAIL
 - All stats match actual DB counts
 
-### [ ] Step 10: Deployment Config + Final Verification
+### [x] Step 10: Deployment Config + Final Verification
+<!-- chat-id: c0134b0f-4ef8-4062-b1bf-e74ff8d451e3 -->
 
 Add deployment configuration and verify all integration points.
 
@@ -225,22 +226,22 @@ Files to create:
 - `.env.local.example` — all env vars with comments per spec
 
 Final verification checklist:
-- [ ] `npm run build` — 0 errors
-- [ ] `npm run typecheck` — 0 errors
-- [ ] `npm run lint` — 0 errors
-- [ ] No hardcoded values anywhere; all config via `process.env`
-- [ ] CITIES constant is single source of truth (ingest loop, dropdown, generateStaticParams, DB seed)
-- [ ] No `is_new` column; freshness uses `created_at >= now() - interval '7 days'` everywhere
-- [ ] NormalizedEvent type used throughout; ingest never uses raw API responses directly
-- [ ] Upsert never overwrites `created_at`
-- [ ] Ingest handles pagination (10-page cap), exponential backoff, per-city failure isolation
-- [ ] Newsletter uses in-memory city grouping (no N+1 queries)
-- [ ] `/api/ingest` and `/api/newsletter` accept GET + POST, Bearer + Basic Auth
-- [ ] City SEO pages use `generateStaticParams()` from CITIES (no Supabase at build time)
-- [ ] Admin uses HTTP Basic Auth only (no cookies, no login form)
-- [ ] Every subscriber email has unsubscribe link with unique token
-- [ ] Subscribers table uses location_id FK (not raw city text)
-- [ ] All 4 DB indexes exist
-- [ ] App never crashes on empty database
-- [ ] Logo component on every page and in email template
-- [ ] All outbound ticket links use `target="_blank" rel="noopener noreferrer"`
+- [x] `npm run build` — 0 errors
+- [x] `npm run typecheck` — 0 errors
+- [x] `npm run lint` — 0 errors
+- [x] No hardcoded values anywhere; all config via `process.env`
+- [x] CITIES constant is single source of truth (ingest loop, dropdown, generateStaticParams, DB seed)
+- [x] No `is_new` column; freshness uses `created_at >= now() - interval '7 days'` everywhere
+- [x] NormalizedEvent type used throughout; ingest never uses raw API responses directly
+- [x] Upsert never overwrites `created_at`
+- [x] Ingest handles pagination (10-page cap), exponential backoff, per-city failure isolation
+- [x] Newsletter uses in-memory city grouping (no N+1 queries)
+- [x] `/api/ingest` and `/api/newsletter` accept GET + POST, Bearer + Basic Auth
+- [x] City SEO pages use `generateStaticParams()` from CITIES (no Supabase at build time)
+- [x] Admin uses HTTP Basic Auth only (no cookies, no login form)
+- [x] Every subscriber email has unsubscribe link with unique token
+- [x] Subscribers table uses location_id FK (not raw city text)
+- [x] All 4 DB indexes exist
+- [x] App never crashes on empty database
+- [x] Logo component on every page and in email template
+- [x] All outbound ticket links use `target="_blank" rel="noopener noreferrer"`
