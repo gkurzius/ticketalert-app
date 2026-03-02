@@ -143,7 +143,8 @@ Verification:
 - Build output confirms pages are statically generated (not dynamically rendered)
 - `generateStaticParams()` does not trigger any Supabase query at build time
 
-### [ ] Step 6: Subscribe + Confirm + Unsubscribe Flows
+### [x] Step 6: Subscribe + Confirm + Unsubscribe Flows
+<!-- chat-id: 64377d0c-cf1b-492d-bce0-0e411505b84a -->
 
 Implement the full email subscription lifecycle.
 
