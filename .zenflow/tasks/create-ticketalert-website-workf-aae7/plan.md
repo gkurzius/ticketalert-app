@@ -129,7 +129,8 @@ Verification:
 - Empty state renders when no events match
 - All "Get Tickets" links have `target="_blank" rel="noopener noreferrer"`
 
-### [ ] Step 5: City SEO Pages
+### [x] Step 5: City SEO Pages
+<!-- chat-id: 654ed0ae-7ef8-4134-b3f0-b1e3d3d33b4d -->
 
 Implement statically generated per-city landing pages.
 
