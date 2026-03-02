@@ -183,7 +183,8 @@ Verification:
 - Each email footer has working unsubscribe link (`/unsubscribe/[token]`)
 - Only 2 DB queries total (no N+1)
 
-### [ ] Step 8: Event Detail Page + Countdown Timer
+### [x] Step 8: Event Detail Page + Countdown Timer
+<!-- chat-id: f8f9509c-55a1-40a7-9435-027e3790b060 -->
 
 Implement the full event detail page with live countdown.
 
