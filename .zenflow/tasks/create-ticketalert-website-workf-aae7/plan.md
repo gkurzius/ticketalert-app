@@ -198,7 +198,8 @@ Verification:
 - Google Calendar link is well-formed and opens correctly
 - 404 page shown for unknown event ID
 
-### [ ] Step 9: Admin Dashboard
+### [x] Step 9: Admin Dashboard
+<!-- chat-id: 2badfc69-f1fa-4bb2-acf3-cbb025e51ac9 -->
 
 Implement the admin dashboard with HTTP Basic Auth, stats display, and manual trigger buttons.
 
