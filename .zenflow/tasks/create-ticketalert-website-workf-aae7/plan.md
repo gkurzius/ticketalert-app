@@ -74,7 +74,8 @@ Verification:
 - `npm run build` produces 0 errors
 - Homepage shell renders with correct fonts and Logo component visible
 
-### [ ] Step 2: Types + Supabase Client + DB Migration SQL
+### [x] Step 2: Types + Supabase Client + DB Migration SQL
+<!-- chat-id: 481e0b1f-a419-4e39-b2ff-dbe70670f392 -->
 
 Set up the data layer types and DB client. Produce the migration SQL file for manual execution.
 
