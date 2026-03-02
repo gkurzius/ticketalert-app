@@ -88,7 +88,8 @@ Verification:
 - `npm run typecheck` passes
 - Migration SQL file reviewed and confirmed correct (manual execution against Supabase)
 
-### [ ] Step 3: Provider Layer + Auth Helpers + Ingest Route
+### [x] Step 3: Provider Layer + Auth Helpers + Ingest Route
+<!-- chat-id: 751c631c-55fa-4ae9-bdbd-3b1f97a7a098 -->
 
 Implement the normalized event type, SeatGeek + Bandsintown providers, auth helpers, and the full ingest API route.
 
