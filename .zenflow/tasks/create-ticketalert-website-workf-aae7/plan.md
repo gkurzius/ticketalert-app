@@ -112,7 +112,8 @@ Verification:
 - Events table populated with real SeatGeek data
 - Running ingest twice: `created_at` unchanged on second run
 
-### [ ] Step 4: Homepage + Event Grid Components
+### [x] Step 4: Homepage + Event Grid Components
+<!-- chat-id: 10c90781-c56c-4a01-aa71-dcf0411b65d7 -->
 
 Build the full homepage with event grid, city filter, New Drop badges, subscribe CTA strip, and empty states.
 
