@@ -167,7 +167,8 @@ Verification:
 - After clicking unsubscribe link: `unsubscribed_at` set in DB
 - 409 returned if email already exists
 
-### [ ] Step 7: Newsletter Route + Email Template
+### [x] Step 7: Newsletter Route + Email Template
+<!-- chat-id: a74cd60d-d9cd-4bcf-889c-f93d750922e7 -->
 
 Implement the newsletter send route and React Email template.
 
