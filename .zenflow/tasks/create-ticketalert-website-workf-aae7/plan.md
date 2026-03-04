@@ -245,3 +245,15 @@ Final verification checklist:
 - [x] App never crashes on empty database
 - [x] Logo component on every page and in email template
 - [x] All outbound ticket links use `target="_blank" rel="noopener noreferrer"`
+
+### [x] Step: Update API Sources from SeatGeek and Bandsintown to Ticketmaster
+
+Replace all SeatGeek and Bandsintown provider code with Ticketmaster Discovery API.
+
+Files changed:
+- `lib/providers/ticketmaster.ts` — created; `fetchTicketmasterEvents(city, state): Promise<NormalizedEvent[]>`; pagination loop (page cap 10, 0-indexed pages); `fetchWithRetry` with exponential backoff (max 3 retries), 429 handling; full field mapping per spec; highest-resolution image selection
+- `lib/providers/seatgeek.ts` — deleted
+- `lib/providers/bandsintown.ts` — deleted
+- `app/api/ingest/route.ts` — updated import and call site to use `fetchTicketmasterEvents(cityEntry.city, cityEntry.state)`
+- `.env.local.example` — removed SEATGEEK_* and BANDSINTOWN_* vars; added TICKETMASTER_API_KEY
+

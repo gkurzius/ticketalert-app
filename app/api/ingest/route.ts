@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { isAuthorized } from '@/lib/auth'
 import { CITIES } from '@/lib/cities'
 import { supabase } from '@/lib/supabase'
-import { fetchSeatGeekEvents } from '@/lib/providers/seatgeek'
+import { fetchTicketmasterEvents } from '@/lib/providers/ticketmaster'
 import type { NormalizedEvent } from '@/lib/providers/normalize'
 
 async function runIngest() {
@@ -15,9 +15,9 @@ async function runIngest() {
     try {
       let events: NormalizedEvent[] = []
       try {
-        events = await fetchSeatGeekEvents(cityEntry.city)
+        events = await fetchTicketmasterEvents(cityEntry.city, cityEntry.state)
       } catch (err) {
-        console.error(`[ingest] SeatGeek fetch failed for ${cityEntry.city}:`, err)
+        console.error(`[ingest] Ticketmaster fetch failed for ${cityEntry.city}:`, err)
         citiesFailed++
         continue
       }
