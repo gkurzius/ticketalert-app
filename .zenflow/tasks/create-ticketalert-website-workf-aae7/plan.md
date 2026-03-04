@@ -257,3 +257,38 @@ Files changed:
 - `app/api/ingest/route.ts` — updated import and call site to use `fetchTicketmasterEvents(cityEntry.city, cityEntry.state)`
 - `.env.local.example` — removed SEATGEEK_* and BANDSINTOWN_* vars; added TICKETMASTER_API_KEY
 
+
+### [x] Step: Update Main API Source to Ticketmaster from Seatgeek and Bandsintown
+<!-- chat-id: 861a43da-d699-49e4-93ec-e86b92605303 -->
+
+The app is already built. Go back and update the existing ingest route and provider files to replace SeatGeek with Ticketmaster Discovery API. Do not rebuild anything else.
+
+Update the data ingest to use Ticketmaster Discovery API as the sole primary data source. Replace all SeatGeek and Bandsintown references with the following:
+Ticketmaster ingest endpoint:
+GET https://app.ticketmaster.com/discovery/v2/events.json
+  ?apikey={TICKETMASTER_API_KEY}
+  &classificationName=music
+  &city={city}
+  &stateCode={state}
+  &startDateTime={now_utc}
+  &endDateTime={now_utc + 90 days}
+  &size=200
+Run for each city in the locations table.
+Extract these fields:
+
+name → artist_name
+dates.start.dateTime → event_date
+sales.public.startDateTime → onsale_datetime
+sales.public.startTBD → onsale_tba (if true, on-sale is TBA)
+sales.presales[] → find earliest upcoming presale → presale_datetime
+_embedded.venues[0].name → venue_name
+_embedded.venues[0].city.name → venue_city
+_embedded.venues[0].state.stateCode → venue_state
+url → ticketing_url
+classifications[0].genre.name → genre
+images[] → highest resolution → image_url
+priceRanges[0].min → price_range_min
+priceRanges[0].max → price_range_max
+id → provider_event_id (provider = 'ticketmaster')
+
+Handle pagination using page.totalPages. Remove all SeatGeek and Bandsintown API calls, clients, and environment variables from the codebase. Update .env.local.example to remove SEATGEEK and BANDSINTOWN variables."
