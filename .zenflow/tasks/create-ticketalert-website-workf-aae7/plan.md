@@ -292,3 +292,8 @@ priceRanges[0].max → price_range_max
 id → provider_event_id (provider = 'ticketmaster')
 
 Handle pagination using page.totalPages. Remove all SeatGeek and Bandsintown API calls, clients, and environment variables from the codebase. Update .env.local.example to remove SEATGEEK and BANDSINTOWN variables."
+
+### [x] Step: Update Vercel.json Schedule
+<!-- chat-id: 2ae82ff6-7992-4327-8edb-6d4902d0150e -->
+
+Update vercel.json to change the ingest cron schedule from 0 */6 * * * to 0 9 * * * to comply with Vercel Hobby plan limitations. This is the only change needed — do not modify anything else.

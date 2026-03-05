@@ -8,3 +8,5 @@ build/
 .env.*.local
 .env
 out/
+.vercel
+.env*.local
