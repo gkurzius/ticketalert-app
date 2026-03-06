@@ -10,11 +10,14 @@ export default function CityFilter() {
 
   function handleChange(e: React.ChangeEvent<HTMLSelectElement>) {
     const value = e.target.value
+    const params = new URLSearchParams(searchParams.toString())
     if (value) {
-      router.push(`/?city=${value}`)
+      params.set('city', value)
     } else {
-      router.push('/')
+      params.delete('city')
     }
+    const qs = params.toString()
+    router.push(qs ? `/?${qs}` : '/')
   }
 
   return (

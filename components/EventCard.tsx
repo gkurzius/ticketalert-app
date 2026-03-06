@@ -1,8 +1,14 @@
 import type { Event } from '@/types'
 
+interface OnSaleInfo {
+  label: string
+  countdown: string
+}
+
 interface EventCardProps {
   event: Event
   isNew: boolean
+  onSaleInfo?: OnSaleInfo
 }
 
 function formatEventDate(dateStr: string | null): string {
@@ -16,7 +22,7 @@ function formatEventDate(dateStr: string | null): string {
   })
 }
 
-export default function EventCard({ event, isNew }: EventCardProps) {
+export default function EventCard({ event, isNew, onSaleInfo }: EventCardProps) {
   return (
     <div
       className="relative rounded-xl overflow-hidden flex flex-col min-h-[320px] border"
@@ -39,6 +45,23 @@ export default function EventCard({ event, isNew }: EventCardProps) {
       />
 
       <div className="relative flex flex-col flex-1 p-5 justify-end gap-3">
+        {onSaleInfo && (
+          <div
+            className="rounded-lg px-3 py-2 flex items-center justify-between gap-2"
+            style={{ backgroundColor: 'rgba(59,130,246,0.15)', border: '1px solid #3B82F6' }}
+          >
+            <span className="font-body font-light text-xs" style={{ color: '#60A5FA' }}>
+              {onSaleInfo.label}
+            </span>
+            <span
+              className="font-display font-extrabold uppercase text-xs px-2 py-0.5 rounded whitespace-nowrap"
+              style={{ backgroundColor: '#3B82F6', color: '#ffffff', letterSpacing: '0.06em' }}
+            >
+              {onSaleInfo.countdown}
+            </span>
+          </div>
+        )}
+
         <div className="flex items-start justify-between gap-2">
           <div className="flex flex-wrap gap-2">
             {isNew && (

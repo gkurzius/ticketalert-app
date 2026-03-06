@@ -297,3 +297,17 @@ Handle pagination using page.totalPages. Remove all SeatGeek and Bandsintown API
 <!-- chat-id: 2ae82ff6-7992-4327-8edb-6d4902d0150e -->
 
 Update vercel.json to change the ingest cron schedule from 0 */6 * * * to 0 9 * * * to comply with Vercel Hobby plan limitations. This is the only change needed — do not modify anything else.
+
+### [x] Step: Add Homepage Tabs
+<!-- chat-id: d89291f7-a252-42c5-b50b-53650a337117 -->
+
+Add two tabs to the homepage: 'On Sale Soon' and 'Upcoming Shows'.
+
+On Sale Soon tab: shows events where onsale_datetime is NOT null AND onsale_datetime is within the next 7 days, sorted by onsale_datetime ASC. Each card should prominently display the on-sale date and time with a label like 'On Sale Fri Mar 8 at 10am' and a countdown badge showing hours/days until on-sale.
+Upcoming Shows tab: shows all events sorted by event_date ASC — this is the current default view.
+
+Default to On Sale Soon tab. If On Sale Soon has no results for the selected city, show a friendly empty state: 'No ticket drops this week for this city — check back soon.'"
+
+7 days keeps it urgent and relevant. Someone seeing "on sale in 3 hours" or "on sale tomorrow" is way more likely to act than "on sale in 22 days.
+
+Each event card on both tabs must include a prominent 'Get Tickets' button linking to the ticketing_url, opening in a new tab.
