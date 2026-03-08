@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { supabase } from '@/lib/supabase'
 import { getResend } from '@/lib/resend'
 import { generateToken } from '@/lib/tokens'
+import { CITIES } from '@/lib/cities'
 
 export async function POST(req: NextRequest) {
   let body: { email?: string; citySlug?: string }
@@ -26,14 +27,38 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'City is required' }, { status: 400 })
   }
 
-  const { data: location, error: locationError } = await supabase
+  const cityEntry = CITIES.find((c) => c.slug === citySlug)
+  if (!cityEntry) {
+    return NextResponse.json({ error: 'Invalid city selection' }, { status: 400 })
+  }
+
+  let { data: location, error: locationError } = await supabase
     .from('locations')
     .select('id, display_name')
     .eq('slug', citySlug)
     .single()
 
   if (locationError || !location) {
-    return NextResponse.json({ error: 'Invalid city selection' }, { status: 400 })
+    const { data: upserted, error: upsertError } = await supabase
+      .from('locations')
+      .upsert(
+        {
+          city: cityEntry.city,
+          state: cityEntry.state,
+          display_name: cityEntry.display_name,
+          slug: cityEntry.slug,
+        },
+        { onConflict: 'slug' }
+      )
+      .select('id, display_name')
+      .single()
+
+    if (upsertError || !upserted) {
+      console.error('[subscribe] Location lookup/upsert error:', locationError?.message, upsertError?.message)
+      return NextResponse.json({ error: 'Failed to process city selection' }, { status: 500 })
+    }
+
+    location = upserted
   }
 
   const confirm_token = generateToken()

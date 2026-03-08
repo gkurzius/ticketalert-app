@@ -15,6 +15,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
   const activeTab = searchParams.tab === 'upcoming' ? 'upcoming' : 'onsale'
   const now = new Date().toISOString()
   const sevenDaysFromNow = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString()
+  const ninetyDaysFromNow = new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toISOString()
 
   const cityMatch = citySlug ? CITIES.find((c) => c.slug === citySlug) : null
 
@@ -30,7 +31,9 @@ export default async function HomePage({ searchParams }: HomePageProps) {
       .order('onsale_datetime', { ascending: true })
 
     if (cityMatch) {
-      query = query.eq('venue_city', cityMatch.city)
+      const cityNames: string[] = [cityMatch.city]
+      if (cityMatch.city === 'New York') cityNames.push('New York City', 'NYC')
+      query = query.in('venue_city', cityNames)
     }
 
     const { data, error } = await query
@@ -40,10 +43,13 @@ export default async function HomePage({ searchParams }: HomePageProps) {
       .from('events')
       .select('*')
       .gte('event_date', now)
+      .lte('event_date', ninetyDaysFromNow)
       .order('event_date', { ascending: true })
 
     if (cityMatch) {
-      query = query.eq('venue_city', cityMatch.city)
+      const cityNames: string[] = [cityMatch.city]
+      if (cityMatch.city === 'New York') cityNames.push('New York City', 'NYC')
+      query = query.in('venue_city', cityNames)
     }
 
     const { data, error } = await query

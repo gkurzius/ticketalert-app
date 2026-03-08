@@ -98,6 +98,11 @@ type TicketmasterResponse = {
   }
 }
 
+function normalizeVenueCity(city: string, stateCode: string): string {
+  if ((city === 'New York City' || city === 'NYC') && stateCode === 'NY') return 'New York'
+  return city
+}
+
 function mapEvent(raw: TicketmasterRaw): NormalizedEvent {
   const venue = raw._embedded?.venues?.[0]
   const genre = raw.classifications?.[0]?.genre?.name
@@ -113,13 +118,16 @@ function mapEvent(raw: TicketmasterRaw): NormalizedEvent {
 
   const onsaleDatetime = toUtcString(publicSale?.startDateTime) ?? toUtcString(upcomingPresale?.startDateTime)
 
+  const rawCity = venue?.city?.name ?? ''
+  const rawState = venue?.state?.stateCode ?? ''
+
   return {
     provider: 'ticketmaster',
     provider_event_id: String(raw.id),
     artist_name: raw.name ?? '',
     venue_name: venue?.name ?? '',
-    venue_city: venue?.city?.name ?? '',
-    venue_state: venue?.state?.stateCode ?? '',
+    venue_city: normalizeVenueCity(rawCity, rawState),
+    venue_state: rawState,
     event_date: toUtcString(raw.dates?.start?.dateTime) ?? '',
     onsale_datetime: onsaleDatetime,
     onsale_tba: publicSale?.startTBD ?? false,

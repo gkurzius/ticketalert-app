@@ -28,12 +28,17 @@ export default async function CityPage({ params }: CityPageProps) {
   if (!cityData) notFound()
 
   const now = new Date().toISOString()
+  const ninetyDaysFromNow = new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toISOString()
+
+  const cityNames: string[] = [cityData.city]
+  if (cityData.city === 'New York') cityNames.push('New York City', 'NYC')
 
   const { data: events, error } = await supabase
     .from('events')
     .select('*')
-    .eq('venue_city', cityData.city)
+    .in('venue_city', cityNames)
     .gte('event_date', now)
+    .lte('event_date', ninetyDaysFromNow)
     .order('event_date', { ascending: true })
 
   const safeEvents: Event[] = error ? [] : (events ?? [])

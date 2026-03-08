@@ -66,17 +66,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         </header>
 
         <div className="border-b" style={{ backgroundColor: '#0f1829', borderColor: '#1e3a5f' }}>
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2.5 flex items-center justify-between gap-4">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2.5 text-center">
             <p className="font-body font-light text-sm" style={{ color: '#60A5FA' }}>
-              🎵 New concerts just announced in your city — never be the last to know
+              🎵 New concerts just announced in your city —{' '}
+              <a href="/subscribe" className="underline transition-opacity hover:opacity-80" style={{ color: '#FFE500' }}>
+                never be the last to know
+              </a>
             </p>
-            <a
-              href="/subscribe"
-              className="shrink-0 font-display font-extrabold uppercase text-xs px-4 py-1.5 rounded-lg transition-opacity hover:opacity-90"
-              style={{ backgroundColor: '#FFE500', color: '#0a0a0a', letterSpacing: '0.08em' }}
-            >
-              Get Alerts
-            </a>
           </div>
         </div>
 

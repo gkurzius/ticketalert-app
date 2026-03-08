@@ -27,17 +27,7 @@ function formatOnsaleLabel(onsale: string): string {
   })} at ${date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })}`
 }
 
-function formatOnsaleCountdown(onsale: string): string {
-  const diff = new Date(onsale).getTime() - Date.now()
-  if (diff <= 0) return 'On Sale Now'
-  const hours = Math.floor(diff / (1000 * 60 * 60))
-  if (hours < 1) return 'On Sale Soon'
-  if (hours < 24) return `in ${hours}h`
-  const days = Math.floor(hours / 24)
-  return `in ${days} day${days === 1 ? '' : 's'}`
-}
-
-type Badge = { emoji: string; label: string; bgColor: string; textColor: string }
+type Badge = { emoji: string; bgColor: string; textColor: string }
 
 function computeBadge(event: Event): Badge | null {
   const now = Date.now()
@@ -53,10 +43,10 @@ function computeBadge(event: Event): Badge | null {
   const isOnSaleNow = onsaleTs !== null && onsaleTs <= now && eventTs !== null && eventTs > now
   const isHot = event.price_range_min !== null && event.price_range_min > 150
 
-  if (isLastChance) return { emoji: '⏰', label: 'Last Chance', bgColor: '#EF4444', textColor: '#ffffff' }
-  if (isNewDrop) return { emoji: '🆕', label: 'New Drop', bgColor: '#FFE500', textColor: '#0a0a0a' }
-  if (isOnSaleNow) return { emoji: '✅', label: 'On Sale Now', bgColor: '#22C55E', textColor: '#ffffff' }
-  if (isHot) return { emoji: '🔥', label: 'Hot', bgColor: '#F97316', textColor: '#ffffff' }
+  if (isLastChance) return { emoji: '⏰', bgColor: '#EF4444', textColor: '#ffffff' }
+  if (isNewDrop) return { emoji: '🆕', bgColor: '#FFE500', textColor: '#0a0a0a' }
+  if (isOnSaleNow) return { emoji: '✅', bgColor: '#22C55E', textColor: '#ffffff' }
+  if (isHot) return { emoji: '🔥', bgColor: '#F97316', textColor: '#ffffff' }
   return null
 }
 
@@ -64,6 +54,8 @@ export default function EventCard({ event, showOnSaleBox = false }: EventCardPro
   const badge = computeBadge(event)
   const now = Date.now()
   const onsaleInFuture = event.onsale_datetime && new Date(event.onsale_datetime).getTime() > now
+
+  const hasTopLine = badge || (showOnSaleBox && onsaleInFuture && event.onsale_datetime) || event.genre
 
   return (
     <div
@@ -87,41 +79,34 @@ export default function EventCard({ event, showOnSaleBox = false }: EventCardPro
       />
 
       <div className="relative flex flex-col flex-1 p-5 justify-end gap-2">
-        {showOnSaleBox && onsaleInFuture && event.onsale_datetime && (
-          <div
-            className="rounded-lg px-3 py-2 flex items-center justify-between gap-2"
-            style={{ backgroundColor: 'rgba(59,130,246,0.15)', border: '1px solid #3B82F6' }}
-          >
-            <span className="font-body font-light text-xs" style={{ color: '#60A5FA' }}>
-              {formatOnsaleLabel(event.onsale_datetime)}
-            </span>
-            <span
-              className="font-display font-extrabold uppercase text-xs px-2 py-0.5 rounded whitespace-nowrap"
-              style={{ backgroundColor: '#3B82F6', color: '#ffffff', letterSpacing: '0.06em' }}
-            >
-              {formatOnsaleCountdown(event.onsale_datetime)}
-            </span>
+        {hasTopLine && (
+          <div className="flex flex-wrap gap-1.5 items-center">
+            {badge && (
+              <span
+                className="text-sm px-1.5 py-0.5 rounded"
+                style={{ backgroundColor: badge.bgColor, color: badge.textColor }}
+              >
+                {badge.emoji}
+              </span>
+            )}
+            {showOnSaleBox && onsaleInFuture && event.onsale_datetime && (
+              <span
+                className="font-body font-light text-xs px-2 py-0.5 rounded border"
+                style={{ borderColor: '#3B82F6', color: '#60A5FA' }}
+              >
+                {formatOnsaleLabel(event.onsale_datetime)}
+              </span>
+            )}
+            {event.genre && (
+              <span
+                className="font-body font-light text-xs px-2 py-0.5 rounded border"
+                style={{ borderColor: '#1e3a5f', color: '#60A5FA' }}
+              >
+                {event.genre}
+              </span>
+            )}
           </div>
         )}
-
-        <div className="flex flex-wrap gap-2">
-          {badge && (
-            <span
-              className="font-display font-extrabold text-xs px-2 py-0.5 rounded"
-              style={{ backgroundColor: badge.bgColor, color: badge.textColor, letterSpacing: '0.06em' }}
-            >
-              {badge.emoji} {badge.label}
-            </span>
-          )}
-          {event.genre && (
-            <span
-              className="font-body font-light text-xs px-2 py-0.5 rounded border"
-              style={{ borderColor: '#1e3a5f', color: '#60A5FA' }}
-            >
-              {event.genre}
-            </span>
-          )}
-        </div>
 
         <h3 className="font-display font-extrabold text-2xl leading-tight" style={{ color: '#ffffff' }}>
           {event.artist_name ?? 'Unknown Artist'}

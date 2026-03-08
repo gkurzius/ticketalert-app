@@ -354,3 +354,20 @@ Founder @ TicketAlert
 P.S. Already 1,000+ music fans across the country never miss a drop. Forward this to a friend who needs it.
 [View in browser]
 Also update vercel.json to change the newsletter cron schedule from 0 23 * * 0 to 0 14 * * 4 — this changes the send time from Sunday 11pm UTC to Thursday 9am ET.
+
+### [x] Step: Additional UI/UX Enhancements
+<!-- chat-id: acfe46f3-cb5a-4e91-8f73-bf81c193dead -->
+
+Fix the following UI and functionality issues:
+1. City selection bug — 'Invalid city selection' error when subscribing. Fix the city dropdown so it properly validates and submits the selected city. Boston and all other cities should work.
+2. Update subscribe form copy — replace 'Weekly digest. No spam. Unsubscribe anytime.' with 'No spam. No BS. Just ticket drops and upcoming shows every week.'
+3. Event card badge cleanup:
+
+Move all badges (emoji + genre) to the top line of every event card, consistently regardless of artist name length
+'On Sale Soon' date should also appear on the top line
+Remove the text label next to emojis — emoji only, no words. The emoji speaks for itself
+Only show a badge on events that genuinely warrant one — not every card needs one. No badge is better than a meaningless badge
+
+4. Subscribe CTA cleanup — currently there are two yellow CTAs (Subscribe button and Get Alerts button) that are redundant and cluttered. Consolidate into one clear CTA. Keep the newsletter popup as is. On the main page remove the redundant second CTA or differentiate it visually so they don't compete.
+5. Fix New York City — the city page and API call for New York City is not mapping correctly. Ensure 'New York City' maps to the correct Ticketmaster API parameters (city=New York, stateCode=NY) and the city page loads properly.
+6. Extend upcoming shows window — currently only showing events for the next ~10 days. Increase to 90 days so users searching for artists like Bruce Springsteen see all upcoming shows even if tickets are already on sale. This is critical — showing 'None found' for a show happening in 3 weeks that's already on sale feels broken and loses affiliate revenue.

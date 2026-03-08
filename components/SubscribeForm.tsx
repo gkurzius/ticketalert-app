@@ -138,7 +138,7 @@ export default function SubscribeForm({ defaultCitySlug = '' }: SubscribeFormPro
       </button>
 
       <p className="font-body font-light text-xs text-center" style={{ color: '#60A5FA' }}>
-        Weekly digest. No spam. Unsubscribe anytime.
+        No spam. No BS. Just ticket drops and upcoming shows every week.
       </p>
     </form>
   )
