@@ -332,3 +332,25 @@ No badge — everything else
 7. Add About page at /about — founder story, mission, how it works. Keep it human and concise — one paragraph on the problem, one on the solution, one on the founder background
 8. City pages already exist at /[city] — verify they're working and add a city index page at /cities listing all 20 supported cities with links to each city page
 9. Fix the Ticketmaster API call for New York City — it's currently failing on page 6 with a 400 error. Add a try/catch around pagination so that if any page fails, it logs the error and continues with whatever events were already fetched rather than throwing and losing all NYC data.
+
+### [x] Step: Welcome Email
+<!-- chat-id: 9e2e185a-716a-4a72-965f-af9e97233df4 -->
+
+Build a welcome email that triggers immediately when a subscriber confirms their email address. Send via Resend from alerts@ticketalert.co. Use the existing email template style — navy background, yellow TicketAlert logo header, DM Sans body font.
+Subject line: You're in. 🎟️
+Email body:
+Hey,
+You're on the list. From now on you'll be the first to know when tickets drop for concerts in [city].
+Here's what you'll get every Thursday morning:
+🆕 New on-sales — concerts just announced and going on sale soon in your city, so you can buy before they sell out
+🎵 Coming up this week — shows happening soon in case something catches your eye last minute
+Every week we scan the internet for new events going on-sale in your city. You get the drop before everyone else.
+See what's on sale right now →
+[Button: View Concerts in [city] → links to ticketalert.co/[city]]
+No spam. No filler. No BS. Never miss a drop again.
+Talk soon,
+Griffin
+Founder @ TicketAlert
+P.S. Already 1,000+ music fans across the country never miss a drop. Forward this to a friend who needs it.
+[View in browser]
+Also update vercel.json to change the newsletter cron schedule from 0 23 * * 0 to 0 14 * * 4 — this changes the send time from Sunday 11pm UTC to Thursday 9am ET.

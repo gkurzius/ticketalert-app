@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabase } from '@/lib/supabase'
+import { getResend } from '@/lib/resend'
+import { buildWelcomeEmailHtml } from '@/components/EmailTemplate'
+import { CITIES } from '@/lib/cities'
 
 export async function GET(
   _req: NextRequest,
@@ -13,7 +16,7 @@ export async function GET(
 
   const { data: subscriber, error: findError } = await supabase
     .from('subscribers')
-    .select('id, confirmed')
+    .select('id, email, confirmed, unsubscribe_token, location_id, locations(city, slug)')
     .eq('confirm_token', token)
     .single()
 
@@ -33,6 +36,33 @@ export async function GET(
   if (updateError) {
     console.error('[confirm] Update error:', updateError.message)
     return NextResponse.json({ error: 'Failed to confirm subscription' }, { status: 500 })
+  }
+
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://ticketalert.co'
+  const fromEmail = process.env.RESEND_FROM_EMAIL ?? 'alerts@ticketalert.co'
+
+  try {
+    const locRaw = subscriber.locations
+    const location = (Array.isArray(locRaw) ? locRaw[0] : locRaw) as { city: string; slug: string } | null
+    const cityName = location?.city ?? 'your city'
+    const citySlug = location?.slug ?? CITIES[0].slug
+
+    const html = buildWelcomeEmailHtml({
+      city: cityName,
+      citySlug,
+      unsubscribeToken: subscriber.unsubscribe_token ?? '',
+      siteUrl,
+    })
+
+    const resend = getResend()
+    await resend.emails.send({
+      from: fromEmail,
+      to: subscriber.email,
+      subject: "You're in. 🎟️",
+      html,
+    })
+  } catch (emailError) {
+    console.error('[confirm] Welcome email failed:', emailError)
   }
 
   return NextResponse.json({ success: true })

@@ -80,6 +80,131 @@ function buildEventRow(event: Event, siteUrl: string): string {
   `
 }
 
+interface WelcomeEmailProps {
+  city: string
+  citySlug: string
+  unsubscribeToken: string
+  siteUrl: string
+}
+
+export function buildWelcomeEmailHtml({ city, citySlug, unsubscribeToken, siteUrl }: WelcomeEmailProps): string {
+  const year = new Date().getFullYear()
+  const unsubscribeUrl = `${siteUrl}/unsubscribe/${unsubscribeToken}`
+  const cityUrl = `${siteUrl}/${citySlug}`
+
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>You're in. 🎟️</title>
+</head>
+<body style="margin:0;padding:0;background-color:#0B1120;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background-color:#0B1120;padding:40px 0;">
+    <tr>
+      <td align="center">
+        <table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;">
+
+          <!-- Header / Logo -->
+          <tr>
+            <td style="padding:32px 32px 24px;background-color:#0B1120;border-bottom:1px solid #1e3a5f;">
+              <table cellpadding="0" cellspacing="0">
+                <tr>
+                  <td style="padding-right:12px;vertical-align:middle;">
+                    ${logoSvg}
+                  </td>
+                  <td style="vertical-align:middle;">
+                    <div style="font-size:24px;font-weight:800;text-transform:uppercase;letter-spacing:0.05em;line-height:1;">
+                      <span style="color:#ffffff;">Ticket</span><span style="color:#FFE500;">Alert</span>
+                    </div>
+                    <div style="color:#60A5FA;font-size:11px;letter-spacing:0.2em;text-transform:uppercase;margin-top:4px;font-weight:300;">Never miss a drop</div>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          <!-- Body -->
+          <tr>
+            <td style="padding:32px 32px 0;background-color:#0f1829;border-left:1px solid #1e3a5f;border-right:1px solid #1e3a5f;">
+              <h1 style="color:#ffffff;font-size:26px;font-weight:800;text-transform:uppercase;margin:0 0 24px;letter-spacing:0.03em;line-height:1.2;">
+                You're in. 🎟️
+              </h1>
+              <p style="color:#94a3b8;font-size:15px;font-weight:300;margin:0 0 16px;line-height:1.7;">
+                Hey,
+              </p>
+              <p style="color:#94a3b8;font-size:15px;font-weight:300;margin:0 0 16px;line-height:1.7;">
+                You're on the list. From now on you'll be the first to know when tickets drop for concerts in ${city}.
+              </p>
+              <p style="color:#94a3b8;font-size:15px;font-weight:300;margin:0 0 8px;line-height:1.7;">
+                Here's what you'll get every Thursday morning:
+              </p>
+              <p style="color:#94a3b8;font-size:15px;font-weight:300;margin:0 0 8px;line-height:1.7;">
+                🆕 <strong style="color:#ffffff;">New on-sales</strong> — concerts just announced and going on sale soon in your city, so you can buy before they sell out
+              </p>
+              <p style="color:#94a3b8;font-size:15px;font-weight:300;margin:0 0 24px;line-height:1.7;">
+                🎵 <strong style="color:#ffffff;">Coming up this week</strong> — shows happening soon in case something catches your eye last minute
+              </p>
+              <p style="color:#94a3b8;font-size:15px;font-weight:300;margin:0 0 32px;line-height:1.7;">
+                Every week we scan the internet for new events going on-sale in your city. You get the drop before everyone else.
+              </p>
+            </td>
+          </tr>
+
+          <!-- CTA Button -->
+          <tr>
+            <td style="padding:0 32px 32px;background-color:#0f1829;border-left:1px solid #1e3a5f;border-right:1px solid #1e3a5f;">
+              <table cellpadding="0" cellspacing="0">
+                <tr>
+                  <td style="border-radius:8px;background-color:#FFE500;">
+                    <a href="${cityUrl}" target="_blank" rel="noopener noreferrer" style="display:inline-block;padding:14px 28px;color:#0a0a0a;font-size:14px;font-weight:800;text-transform:uppercase;letter-spacing:0.1em;text-decoration:none;">
+                      View Concerts in ${city} &rarr;
+                    </a>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          <!-- Sign-off -->
+          <tr>
+            <td style="padding:0 32px 32px;background-color:#0f1829;border-left:1px solid #1e3a5f;border-right:1px solid #1e3a5f;">
+              <p style="color:#94a3b8;font-size:15px;font-weight:300;margin:0 0 8px;line-height:1.7;">
+                No spam. No filler. No BS. Never miss a drop again.
+              </p>
+              <p style="color:#94a3b8;font-size:15px;font-weight:300;margin:0 0 8px;line-height:1.7;">
+                Talk soon,<br />
+                <strong style="color:#ffffff;">Griffin</strong><br />
+                <span style="color:#60A5FA;">Founder @ TicketAlert</span>
+              </p>
+              <p style="color:#60A5FA;font-size:13px;font-weight:300;margin:24px 0 0;line-height:1.7;border-top:1px solid #1e3a5f;padding-top:16px;">
+                P.S. Already 1,000+ music fans across the country never miss a drop. Forward this to a friend who needs it.
+              </p>
+            </td>
+          </tr>
+
+          <!-- Footer -->
+          <tr>
+            <td style="padding:24px 32px;background-color:#0B1120;border:1px solid #1e3a5f;border-top:1px solid #1e3a5f;">
+              <p style="color:#60A5FA;font-size:12px;font-weight:300;margin:0 0 8px;text-align:center;line-height:1.6;">
+                You're receiving this because you subscribed to TicketAlert alerts for ${city}.
+              </p>
+              <p style="color:#60A5FA;font-size:12px;font-weight:300;margin:0;text-align:center;">
+                <a href="${unsubscribeUrl}" style="color:#60A5FA;text-decoration:underline;">Unsubscribe</a>
+                &nbsp;&mdash;&nbsp;
+                &copy; ${year} TicketAlert
+              </p>
+            </td>
+          </tr>
+
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>`
+}
+
 export function buildEmailHtml({ city, events, unsubscribeToken, siteUrl }: EmailTemplateProps): string {
   const year = new Date().getFullYear()
   const unsubscribeUrl = `${siteUrl}/unsubscribe/${unsubscribeToken}`
