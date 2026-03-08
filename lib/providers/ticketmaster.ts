@@ -143,33 +143,41 @@ export async function fetchTicketmasterEvents(city: string, state: string): Prom
   const events: NormalizedEvent[] = []
 
   for (let page = 0; page < PAGE_CAP; page++) {
-    const params = new URLSearchParams({
-      apikey: apiKey,
-      classificationName: 'music',
-      city,
-      stateCode: state,
-      startDateTime,
-      endDateTime,
-      size: '200',
-      page: String(page),
-    })
+    try {
+      const params = new URLSearchParams({
+        apikey: apiKey,
+        classificationName: 'music',
+        city,
+        stateCode: state,
+        startDateTime,
+        endDateTime,
+        size: '200',
+        page: String(page),
+      })
 
-    const url = `${BASE_URL}?${params.toString()}`
-    const res = await fetchWithRetry(url)
+      const url = `${BASE_URL}?${params.toString()}`
+      const res = await fetchWithRetry(url)
 
-    if (!res.ok) {
-      throw new Error(`Ticketmaster API error ${res.status} for city "${city}" page ${page}`)
+      if (!res.ok) {
+        console.error(
+          `Ticketmaster API error ${res.status} for city "${city}" page ${page} — stopping pagination`
+        )
+        break
+      }
+
+      const data = (await res.json()) as TicketmasterResponse
+      const rawEvents = data._embedded?.events ?? []
+
+      for (const raw of rawEvents) {
+        events.push(mapEvent(raw))
+      }
+
+      const totalPages = data.page?.totalPages ?? 1
+      if (page + 1 >= totalPages) break
+    } catch (err) {
+      console.error(`Error fetching Ticketmaster page ${page} for city "${city}":`, err)
+      break
     }
-
-    const data = (await res.json()) as TicketmasterResponse
-    const rawEvents = data._embedded?.events ?? []
-
-    for (const raw of rawEvents) {
-      events.push(mapEvent(raw))
-    }
-
-    const totalPages = data.page?.totalPages ?? 1
-    if (page + 1 >= totalPages) break
   }
 
   return events

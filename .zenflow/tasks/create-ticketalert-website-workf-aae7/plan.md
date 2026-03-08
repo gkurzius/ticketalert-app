@@ -311,3 +311,24 @@ Default to On Sale Soon tab. If On Sale Soon has no results for the selected cit
 7 days keeps it urgent and relevant. Someone seeing "on sale in 3 hours" or "on sale tomorrow" is way more likely to act than "on sale in 22 days.
 
 Each event card on both tabs must include a prominent 'Get Tickets' button linking to the ticketing_url, opening in a new tab.
+
+### [x] Step: UI/UX Updates
+<!-- chat-id: 14dd0dd8-5e67-431a-bb1d-e8ab9e50cc54 -->
+
+Make the following UI/UX updates:
+1. Newsletter signup popup — appears 3 seconds after page load, email + city fields, dismiss button, don't show again if already subscribed or dismissed in this session
+2. Newsletter CTA strip — appears below the header immediately, then repeats every 10 event cards throughout the feed
+3. Font fix — artist names should be title case not all caps. Reduce visual noise overall — hierarchy should be: Artist Name → Venue → Date → Price
+4. Fix event badge logic with emoji badges:
+
+🆕 'New Drop' — added to DB in last 48 hours AND onsale_datetime is in the future
+✅ 'On Sale Now' — onsale_datetime is in the past but event_date is in the future
+⏰ 'Last Chance' — event_date is within 48 hours
+🔥 'Hot' — price_range_min above $150 as proxy for high demand
+No badge — everything else
+
+5. Search bar — text input that filters visible events by artist name in real time (client-side filtering, no API call needed)
+6. Genre filter — dropdown alongside city filter, pulls distinct genres from events table
+7. Add About page at /about — founder story, mission, how it works. Keep it human and concise — one paragraph on the problem, one on the solution, one on the founder background
+8. City pages already exist at /[city] — verify they're working and add a city index page at /cities listing all 20 supported cities with links to each city page
+9. Fix the Ticketmaster API call for New York City — it's currently failing on page 6 with a 400 error. Add a try/catch around pagination so that if any page fails, it logs the error and continues with whatever events were already fetched rather than throwing and losing all NYC data.

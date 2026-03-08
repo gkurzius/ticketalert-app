@@ -1,14 +1,10 @@
-import type { Event } from '@/types'
+'use client'
 
-interface OnSaleInfo {
-  label: string
-  countdown: string
-}
+import type { Event } from '@/types'
 
 interface EventCardProps {
   event: Event
-  isNew: boolean
-  onSaleInfo?: OnSaleInfo
+  showOnSaleBox?: boolean
 }
 
 function formatEventDate(dateStr: string | null): string {
@@ -22,7 +18,53 @@ function formatEventDate(dateStr: string | null): string {
   })
 }
 
-export default function EventCard({ event, isNew, onSaleInfo }: EventCardProps) {
+function formatOnsaleLabel(onsale: string): string {
+  const date = new Date(onsale)
+  return `On Sale ${date.toLocaleDateString('en-US', {
+    weekday: 'short',
+    month: 'short',
+    day: 'numeric',
+  })} at ${date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })}`
+}
+
+function formatOnsaleCountdown(onsale: string): string {
+  const diff = new Date(onsale).getTime() - Date.now()
+  if (diff <= 0) return 'On Sale Now'
+  const hours = Math.floor(diff / (1000 * 60 * 60))
+  if (hours < 1) return 'On Sale Soon'
+  if (hours < 24) return `in ${hours}h`
+  const days = Math.floor(hours / 24)
+  return `in ${days} day${days === 1 ? '' : 's'}`
+}
+
+type Badge = { emoji: string; label: string; bgColor: string; textColor: string }
+
+function computeBadge(event: Event): Badge | null {
+  const now = Date.now()
+  const fortyEightHoursAgo = now - 48 * 60 * 60 * 1000
+  const fortyEightHoursFromNow = now + 48 * 60 * 60 * 1000
+
+  const onsaleTs = event.onsale_datetime ? new Date(event.onsale_datetime).getTime() : null
+  const eventTs = event.event_date ? new Date(event.event_date).getTime() : null
+  const createdTs = new Date(event.created_at).getTime()
+
+  const isLastChance = eventTs !== null && eventTs > now && eventTs <= fortyEightHoursFromNow
+  const isNewDrop = createdTs >= fortyEightHoursAgo && onsaleTs !== null && onsaleTs > now
+  const isOnSaleNow = onsaleTs !== null && onsaleTs <= now && eventTs !== null && eventTs > now
+  const isHot = event.price_range_min !== null && event.price_range_min > 150
+
+  if (isLastChance) return { emoji: '⏰', label: 'Last Chance', bgColor: '#EF4444', textColor: '#ffffff' }
+  if (isNewDrop) return { emoji: '🆕', label: 'New Drop', bgColor: '#FFE500', textColor: '#0a0a0a' }
+  if (isOnSaleNow) return { emoji: '✅', label: 'On Sale Now', bgColor: '#22C55E', textColor: '#ffffff' }
+  if (isHot) return { emoji: '🔥', label: 'Hot', bgColor: '#F97316', textColor: '#ffffff' }
+  return null
+}
+
+export default function EventCard({ event, showOnSaleBox = false }: EventCardProps) {
+  const badge = computeBadge(event)
+  const now = Date.now()
+  const onsaleInFuture = event.onsale_datetime && new Date(event.onsale_datetime).getTime() > now
+
   return (
     <div
       className="relative rounded-xl overflow-hidden flex flex-col min-h-[320px] border"
@@ -39,69 +81,66 @@ export default function EventCard({ event, isNew, onSaleInfo }: EventCardProps) 
         className="absolute inset-0"
         style={{
           background: event.image_url
-            ? 'linear-gradient(to top, rgba(11,17,32,0.98) 0%, rgba(11,17,32,0.75) 50%, rgba(11,17,32,0.4) 100%)'
+            ? 'linear-gradient(to top, rgba(11,17,32,0.98) 0%, rgba(11,17,32,0.8) 55%, rgba(11,17,32,0.45) 100%)'
             : 'none',
         }}
       />
 
-      <div className="relative flex flex-col flex-1 p-5 justify-end gap-3">
-        {onSaleInfo && (
+      <div className="relative flex flex-col flex-1 p-5 justify-end gap-2">
+        {showOnSaleBox && onsaleInFuture && event.onsale_datetime && (
           <div
             className="rounded-lg px-3 py-2 flex items-center justify-between gap-2"
             style={{ backgroundColor: 'rgba(59,130,246,0.15)', border: '1px solid #3B82F6' }}
           >
             <span className="font-body font-light text-xs" style={{ color: '#60A5FA' }}>
-              {onSaleInfo.label}
+              {formatOnsaleLabel(event.onsale_datetime)}
             </span>
             <span
               className="font-display font-extrabold uppercase text-xs px-2 py-0.5 rounded whitespace-nowrap"
               style={{ backgroundColor: '#3B82F6', color: '#ffffff', letterSpacing: '0.06em' }}
             >
-              {onSaleInfo.countdown}
+              {formatOnsaleCountdown(event.onsale_datetime)}
             </span>
           </div>
         )}
 
-        <div className="flex items-start justify-between gap-2">
-          <div className="flex flex-wrap gap-2">
-            {isNew && (
-              <span
-                className="font-display font-extrabold uppercase text-xs px-2 py-0.5 rounded"
-                style={{ backgroundColor: '#FFE500', color: '#0a0a0a', letterSpacing: '0.08em' }}
-              >
-                New Drop
-              </span>
-            )}
-            {event.genre && (
-              <span
-                className="font-body font-light text-xs px-2 py-0.5 rounded border"
-                style={{ borderColor: '#1e3a5f', color: '#60A5FA' }}
-              >
-                {event.genre}
-              </span>
-            )}
-          </div>
+        <div className="flex flex-wrap gap-2">
+          {badge && (
+            <span
+              className="font-display font-extrabold text-xs px-2 py-0.5 rounded"
+              style={{ backgroundColor: badge.bgColor, color: badge.textColor, letterSpacing: '0.06em' }}
+            >
+              {badge.emoji} {badge.label}
+            </span>
+          )}
+          {event.genre && (
+            <span
+              className="font-body font-light text-xs px-2 py-0.5 rounded border"
+              style={{ borderColor: '#1e3a5f', color: '#60A5FA' }}
+            >
+              {event.genre}
+            </span>
+          )}
         </div>
 
-        <h3
-          className="font-display font-extrabold uppercase text-2xl leading-tight"
-          style={{ color: '#ffffff' }}
-        >
+        <h3 className="font-display font-extrabold text-2xl leading-tight" style={{ color: '#ffffff' }}>
           {event.artist_name ?? 'Unknown Artist'}
         </h3>
 
-        <div className="flex flex-col gap-1">
+        <div className="flex flex-col gap-0.5">
           {(event.venue_name || event.venue_city) && (
             <p className="font-body font-light text-sm" style={{ color: '#60A5FA' }}>
-              {[event.venue_name, event.venue_city && event.venue_state
-                ? `${event.venue_city}, ${event.venue_state}`
-                : event.venue_city ?? event.venue_state
+              {[
+                event.venue_name,
+                event.venue_city && event.venue_state
+                  ? `${event.venue_city}, ${event.venue_state}`
+                  : event.venue_city ?? event.venue_state,
               ]
                 .filter(Boolean)
                 .join(' · ')}
             </p>
           )}
-          <p className="font-body font-light text-sm" style={{ color: '#ffffff', opacity: 0.8 }}>
+          <p className="font-body font-light text-sm" style={{ color: '#ffffff', opacity: 0.75 }}>
             {formatEventDate(event.event_date)}
           </p>
           {event.price_range_min != null && (
