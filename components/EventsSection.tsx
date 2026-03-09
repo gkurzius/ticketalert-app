@@ -52,7 +52,11 @@ export default function EventsSection({ events, activeTab, cityName, emptyMessag
     let result = events
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase()
-      result = result.filter((e) => e.artist_name?.toLowerCase().includes(q))
+      result = result.filter(
+        (e) =>
+          e.artist_name?.toLowerCase().includes(q) ||
+          e.venue_name?.toLowerCase().includes(q)
+      )
     }
     if (genreFilter) {
       result = result.filter((e) => e.genre === genreFilter)
@@ -74,7 +78,7 @@ export default function EventsSection({ events, activeTab, cityName, emptyMessag
         <div className="relative flex-1">
           <input
             type="text"
-            placeholder="Search artists..."
+            placeholder="Search artists or venues..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="w-full font-body font-light text-sm rounded-lg px-4 py-2 border outline-none pl-9"
