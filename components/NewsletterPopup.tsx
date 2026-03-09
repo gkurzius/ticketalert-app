@@ -32,6 +32,7 @@ export default function NewsletterPopup() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, citySlug }),
       })
+      const data = await res.json().catch(() => ({}))
       if (res.ok) {
         setStatus('success')
         sessionStorage.setItem('newsletter_popup_dismissed', '1')
@@ -39,7 +40,7 @@ export default function NewsletterPopup() {
         setErrorMsg("You're already subscribed!")
         setStatus('error')
       } else {
-        setErrorMsg('Something went wrong. Please try again.')
+        setErrorMsg(data?.error ?? 'Something went wrong. Please try again.')
         setStatus('error')
       }
     } catch {

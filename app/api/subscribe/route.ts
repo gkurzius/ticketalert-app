@@ -27,15 +27,21 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'City is required' }, { status: 400 })
   }
 
-  const cityEntry = CITIES.find((c) => c.slug === citySlug)
+  const normalizedSlug = citySlug.trim().toLowerCase()
+  const cityEntry =
+    CITIES.find((c) => c.slug === normalizedSlug) ??
+    CITIES.find((c) => c.display_name.toLowerCase() === normalizedSlug) ??
+    CITIES.find((c) => c.city.toLowerCase() === normalizedSlug)
+
   if (!cityEntry) {
+    console.error('[subscribe] Unknown citySlug received:', JSON.stringify(citySlug))
     return NextResponse.json({ error: 'Invalid city selection' }, { status: 400 })
   }
 
   let { data: location, error: locationError } = await supabase
     .from('locations')
     .select('id, display_name')
-    .eq('slug', citySlug)
+    .eq('slug', cityEntry.slug)
     .single()
 
   if (locationError || !location) {
