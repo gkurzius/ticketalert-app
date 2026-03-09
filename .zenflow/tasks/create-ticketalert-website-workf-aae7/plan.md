@@ -408,3 +408,8 @@ No badge for everything else
 Keep the 'On Sale [date and time]' display for events where onsale_datetime is in the future
 Genre tag should also appear on the top line
 All badges, on-sale date, and genre tag should appear on the top line of every event card, consistently positioned regardless of artist name length
+
+### [x] Step: NYC Fix
+<!-- chat-id: 20598410-fa74-468e-9846-bbfa23ad9ec9 -->
+
+New York City is still not showing events on the site despite having data in the database. The events table stores venue_city as 'New York' for Ticketmaster events. Check the NYC city page query and homepage filter — make sure they query for venue_city IN ('New York', 'New York City', 'NYC') to catch all variations. Also verify the city dropdown value for New York maps correctly to the query
