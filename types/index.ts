@@ -30,7 +30,8 @@ export type Event = {
 export type Subscriber = {
   id: string
   email: string
-  location_id: string | null
+  city: string
+  state: string | null
   confirmed: boolean
   confirm_token: string | null
   unsubscribe_token: string | null
