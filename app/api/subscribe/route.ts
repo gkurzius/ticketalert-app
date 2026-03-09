@@ -98,8 +98,8 @@ export async function POST(req: NextRequest) {
     if (insertError.code === '23505') {
       return NextResponse.json({ error: 'Email already subscribed' }, { status: 409 })
     }
-    console.error('[subscribe] Insert error:', insertError.message)
-    return NextResponse.json({ error: 'Failed to create subscription' }, { status: 500 })
+    console.error('[subscribe] Subscriber insert failed — code:', insertError.code, 'message:', insertError.message, 'details:', insertError.details, 'hint:', insertError.hint)
+    return NextResponse.json({ error: `Subscriber insert failed: ${insertError.message}` }, { status: 500 })
   }
 
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://ticketalert.co'
