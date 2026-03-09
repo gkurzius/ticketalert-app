@@ -28,13 +28,23 @@ export default function SubscribeForm({ defaultCitySlug = '' }: SubscribeFormPro
       return
     }
 
+    const resolvedCity =
+      CITIES.find((c) => c.slug === citySlug) ??
+      CITIES.find((c) => c.display_name === citySlug) ??
+      CITIES.find((c) => c.city === citySlug)
+
+    if (!resolvedCity) {
+      setError('Please select a valid city.')
+      return
+    }
+
     setLoading(true)
 
     try {
       const res = await fetch('/api/subscribe', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: email.trim(), citySlug }),
+        body: JSON.stringify({ email: email.trim(), citySlug: resolvedCity.slug }),
       })
 
       const data = await res.json()

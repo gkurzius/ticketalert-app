@@ -45,6 +45,13 @@ export async function POST(req: NextRequest) {
     .single()
 
   if (locationError || !location) {
+    console.error(
+      '[subscribe] Location SELECT failed — code:', locationError?.code,
+      'message:', locationError?.message,
+      'details:', locationError?.details,
+      'hint:', locationError?.hint
+    )
+
     const { data: upserted, error: upsertError } = await supabase
       .from('locations')
       .upsert(
@@ -60,8 +67,16 @@ export async function POST(req: NextRequest) {
       .single()
 
     if (upsertError || !upserted) {
-      console.error('[subscribe] Location lookup/upsert error:', locationError?.message, upsertError?.message)
-      return NextResponse.json({ error: 'Failed to process city selection' }, { status: 500 })
+      console.error(
+        '[subscribe] Location UPSERT failed — code:', upsertError?.code,
+        'message:', upsertError?.message,
+        'details:', upsertError?.details,
+        'hint:', upsertError?.hint
+      )
+      return NextResponse.json(
+        { error: `Location DB error: ${upsertError?.message ?? locationError?.message ?? 'unknown'}` },
+        { status: 500 }
+      )
     }
 
     location = upserted

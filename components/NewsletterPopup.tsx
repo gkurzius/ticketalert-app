@@ -27,10 +27,15 @@ export default function NewsletterPopup() {
     setStatus('loading')
     setErrorMsg('')
     try {
+      const resolvedCity =
+        CITIES.find((c) => c.slug === citySlug) ??
+        CITIES.find((c) => c.display_name === citySlug) ??
+        CITIES.find((c) => c.city === citySlug)
+
       const res = await fetch('/api/subscribe', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, citySlug }),
+        body: JSON.stringify({ email, citySlug: resolvedCity?.slug ?? citySlug }),
       })
       const data = await res.json().catch(() => ({}))
       if (res.ok) {
