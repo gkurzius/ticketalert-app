@@ -394,3 +394,17 @@ Griffin
 Founder @ TicketAlert
 P.S. Already 1,000+ music fans across the country never miss a drop. Forward this to a friend who needs it.
 [View in browser]
+
+### [x] Step: Event Badge Adjustments
+<!-- chat-id: 93b78baa-557b-477f-a578-fef83a931d28 -->
+
+Simplify event card badges and top line display:
+
+🔥 fire emoji only (no text) for events where price_range_min is above $150
+'New Drop' text label for events added in last 48 hours with future onsale_datetime
+'On Sale Now' text label for events where onsale_datetime is past but event_date is future
+'Last Chance' text label for events where event_date is within 48 hours
+No badge for everything else
+Keep the 'On Sale [date and time]' display for events where onsale_datetime is in the future
+Genre tag should also appear on the top line
+All badges, on-sale date, and genre tag should appear on the top line of every event card, consistently positioned regardless of artist name length

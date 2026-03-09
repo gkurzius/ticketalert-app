@@ -27,7 +27,7 @@ function formatOnsaleLabel(onsale: string): string {
   })} at ${date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })}`
 }
 
-type Badge = { emoji: string; bgColor: string; textColor: string }
+type Badge = { label: string; bgColor: string; textColor: string }
 
 function computeBadge(event: Event): Badge | null {
   const now = Date.now()
@@ -43,10 +43,10 @@ function computeBadge(event: Event): Badge | null {
   const isOnSaleNow = onsaleTs !== null && onsaleTs <= now && eventTs !== null && eventTs > now
   const isHot = event.price_range_min !== null && event.price_range_min > 150
 
-  if (isLastChance) return { emoji: '⏰', bgColor: '#EF4444', textColor: '#ffffff' }
-  if (isNewDrop) return { emoji: '🆕', bgColor: '#FFE500', textColor: '#0a0a0a' }
-  if (isOnSaleNow) return { emoji: '✅', bgColor: '#22C55E', textColor: '#ffffff' }
-  if (isHot) return { emoji: '🔥', bgColor: '#F97316', textColor: '#ffffff' }
+  if (isLastChance) return { label: 'Last Chance', bgColor: '#EF4444', textColor: '#ffffff' }
+  if (isNewDrop) return { label: 'New Drop', bgColor: '#FFE500', textColor: '#0a0a0a' }
+  if (isOnSaleNow) return { label: 'On Sale Now', bgColor: '#22C55E', textColor: '#ffffff' }
+  if (isHot) return { label: '🔥', bgColor: '#F97316', textColor: '#ffffff' }
   return null
 }
 
@@ -83,10 +83,10 @@ export default function EventCard({ event, showOnSaleBox = false }: EventCardPro
           <div className="flex flex-wrap gap-1.5 items-center">
             {badge && (
               <span
-                className="text-sm px-1.5 py-0.5 rounded"
+                className="font-body font-light text-xs px-2 py-0.5 rounded"
                 style={{ backgroundColor: badge.bgColor, color: badge.textColor }}
               >
-                {badge.emoji}
+                {badge.label}
               </span>
             )}
             {showOnSaleBox && onsaleInFuture && event.onsale_datetime && (
