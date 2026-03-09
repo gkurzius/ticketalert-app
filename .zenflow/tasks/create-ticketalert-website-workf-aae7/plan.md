@@ -413,3 +413,15 @@ All badges, on-sale date, and genre tag should appear on the top line of every e
 <!-- chat-id: 20598410-fa74-468e-9846-bbfa23ad9ec9 -->
 
 New York City is still not showing events on the site despite having data in the database. The events table stores venue_city as 'New York' for Ticketmaster events. Check the NYC city page query and homepage filter — make sure they query for venue_city IN ('New York', 'New York City', 'NYC') to catch all variations. Also verify the city dropdown value for New York maps correctly to the query
+
+### [x] Step: About Page
+<!-- chat-id: 94f186b1-8386-4f08-bd6c-880c783bb6bc -->
+
+Replace the current About page content at /about with the following copy exactly. Use the existing page styling — no layout changes, just replace the text content:
+Earlier this year I tried to buy Bruce Springsteen tickets the day they went on sale.
+By the time I found out, even the nosebleeds were $500 on StubHub. Face value? $130. I missed it by a few hours — not because I didn't want to go, but because I just didn't know in time.
+There had to be a better way.
+So we built TicketAlert. We scan the internet for new concert announcements and on-sale dates in your city and deliver them straight to your inbox — before they sell out, before the resellers flip them, before you're stuck paying 4x face value.
+Live music should be for everyone. Not just the people who happened to check Ticketmaster at the right moment.
+No noise. No algorithm. Just the drops and shows that matter, every week.
+Never miss a drop again.

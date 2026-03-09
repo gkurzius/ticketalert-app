@@ -18,61 +18,54 @@ export default function AboutPage() {
         </h1>
       </section>
 
-      <section className="space-y-10">
-        <div>
-          <h2
-            className="font-display font-extrabold uppercase text-2xl mb-3"
-            style={{ color: '#FFE500' }}
-          >
-            The Problem
-          </h2>
-          <p
-            className="font-body font-light text-base leading-relaxed"
-            style={{ color: '#60A5FA', lineHeight: '1.75' }}
-          >
-            Most music fans find out about concerts too late. You see the Instagram post the morning of
-            the show — sold out, resale only, triple the face value. The best seats were gone before
-            you even knew the show existed. Concert discovery has been broken for years: fragmented
-            across ticket sites, social media, and word of mouth, with no centralized way to know
-            what just dropped in your city.
-          </p>
-        </div>
-
-        <div>
-          <h2
-            className="font-display font-extrabold uppercase text-2xl mb-3"
-            style={{ color: '#FFE500' }}
-          >
-            The Solution
-          </h2>
-          <p
-            className="font-body font-light text-base leading-relaxed"
-            style={{ color: '#60A5FA', lineHeight: '1.75' }}
-          >
-            TicketAlert monitors live event inventory and surfaces newly announced concerts the moment
-            they appear — organized by city, delivered to your inbox every week. No noise, no
-            algorithm, just the shows you care about before everyone else finds out. Subscribe to your
-            city and never be the last to know again.
-          </p>
-        </div>
-
-        <div>
-          <h2
-            className="font-display font-extrabold uppercase text-2xl mb-3"
-            style={{ color: '#FFE500' }}
-          >
-            The Founder
-          </h2>
-          <p
-            className="font-body font-light text-base leading-relaxed"
-            style={{ color: '#60A5FA', lineHeight: '1.75' }}
-          >
-            TicketAlert was built by Griffin Kurzius, a lifelong music fan who got tired of finding
-            out about shows after the fact. With a background in software engineering and a genuine
-            love for live music, Griffin built the platform he always wished existed — fast, local,
-            and obsessively focused on getting fans to shows before the good seats are gone.
-          </p>
-        </div>
+      <section className="space-y-6">
+        <p
+          className="font-body font-light text-base leading-relaxed"
+          style={{ color: '#60A5FA', lineHeight: '1.75' }}
+        >
+          Earlier this year I tried to buy Bruce Springsteen tickets the day they went on sale.
+        </p>
+        <p
+          className="font-body font-light text-base leading-relaxed"
+          style={{ color: '#60A5FA', lineHeight: '1.75' }}
+        >
+          By the time I found out, even the nosebleeds were $500 on StubHub. Face value? $130. I
+          missed it by a few hours — not because I didn&apos;t want to go, but because I just
+          didn&apos;t know in time.
+        </p>
+        <p
+          className="font-body font-light text-base leading-relaxed"
+          style={{ color: '#60A5FA', lineHeight: '1.75' }}
+        >
+          There had to be a better way.
+        </p>
+        <p
+          className="font-body font-light text-base leading-relaxed"
+          style={{ color: '#60A5FA', lineHeight: '1.75' }}
+        >
+          So we built TicketAlert. We scan the internet for new concert announcements and on-sale
+          dates in your city and deliver them straight to your inbox — before they sell out, before
+          the resellers flip them, before you&apos;re stuck paying 4x face value.
+        </p>
+        <p
+          className="font-body font-light text-base leading-relaxed"
+          style={{ color: '#60A5FA', lineHeight: '1.75' }}
+        >
+          Live music should be for everyone. Not just the people who happened to check Ticketmaster
+          at the right moment.
+        </p>
+        <p
+          className="font-body font-light text-base leading-relaxed"
+          style={{ color: '#60A5FA', lineHeight: '1.75' }}
+        >
+          No noise. No algorithm. Just the drops and shows that matter, every week.
+        </p>
+        <p
+          className="font-body font-light text-base leading-relaxed"
+          style={{ color: '#ffffff' }}
+        >
+          Never miss a drop again.
+        </p>
       </section>
 
       <section className="pt-4">
