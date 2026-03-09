@@ -41,45 +41,45 @@ export async function POST(req: NextRequest) {
   let { data: location, error: locationError } = await supabase
     .from('locations')
     .select('id, display_name')
-    .eq('slug', cityEntry.slug)
+    .eq('city', cityEntry.city)
+    .eq('state', cityEntry.state)
     .single()
 
   if (locationError || !location) {
-    console.error(
-      '[subscribe] Location SELECT failed — code:', locationError?.code,
-      'message:', locationError?.message,
-      'details:', locationError?.details,
-      'hint:', locationError?.hint
-    )
-
-    const { data: upserted, error: upsertError } = await supabase
+    const { data: inserted, error: insertError } = await supabase
       .from('locations')
-      .upsert(
-        {
-          city: cityEntry.city,
-          state: cityEntry.state,
-          display_name: cityEntry.display_name,
-          slug: cityEntry.slug,
-        },
-        { onConflict: 'slug' }
-      )
+      .insert({
+        city: cityEntry.city,
+        state: cityEntry.state,
+        display_name: cityEntry.display_name,
+      })
       .select('id, display_name')
       .single()
 
-    if (upsertError || !upserted) {
-      console.error(
-        '[subscribe] Location UPSERT failed — code:', upsertError?.code,
-        'message:', upsertError?.message,
-        'details:', upsertError?.details,
-        'hint:', upsertError?.hint
-      )
-      return NextResponse.json(
-        { error: `Location DB error: ${upsertError?.message ?? locationError?.message ?? 'unknown'}` },
-        { status: 500 }
-      )
+    if (insertError || !inserted) {
+      if (insertError?.code === '23505') {
+        const { data: retry } = await supabase
+          .from('locations')
+          .select('id, display_name')
+          .eq('city', cityEntry.city)
+          .eq('state', cityEntry.state)
+          .single()
+        if (retry) {
+          location = retry
+        } else {
+          console.error('[subscribe] Location insert race condition — could not re-fetch')
+          return NextResponse.json({ error: 'Failed to process city. Please try again.' }, { status: 500 })
+        }
+      } else {
+        console.error('[subscribe] Location insert failed — code:', insertError?.code, 'message:', insertError?.message)
+        return NextResponse.json(
+          { error: `Could not create location: ${insertError?.message ?? locationError?.message ?? 'unknown'}` },
+          { status: 500 }
+        )
+      }
+    } else {
+      location = inserted
     }
-
-    location = upserted
   }
 
   const confirm_token = generateToken()
