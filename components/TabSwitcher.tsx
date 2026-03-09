@@ -4,6 +4,7 @@ import { useRouter, useSearchParams } from 'next/navigation'
 
 interface TabSwitcherProps {
   activeTab: string
+  basePath?: string
 }
 
 const TABS = [
@@ -11,14 +12,14 @@ const TABS = [
   { id: 'upcoming', label: 'Upcoming Shows' },
 ]
 
-export default function TabSwitcher({ activeTab }: TabSwitcherProps) {
+export default function TabSwitcher({ activeTab, basePath = '/' }: TabSwitcherProps) {
   const router = useRouter()
   const searchParams = useSearchParams()
 
   function switchTab(tab: string) {
     const params = new URLSearchParams(searchParams.toString())
     params.set('tab', tab)
-    router.push(`/?${params.toString()}`)
+    router.push(`${basePath}?${params.toString()}`)
   }
 
   return (

@@ -1,12 +1,15 @@
 import type { Metadata } from 'next'
+import { Suspense } from 'react'
 import { notFound } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import { CITIES } from '@/lib/cities'
+import TabSwitcher from '@/components/TabSwitcher'
 import EventsSection from '@/components/EventsSection'
 import type { Event } from '@/types'
 
 interface CityPageProps {
   params: { city: string }
+  searchParams: { tab?: string }
 }
 
 export async function generateStaticParams() {
@@ -23,25 +26,50 @@ export async function generateMetadata({ params }: CityPageProps): Promise<Metad
   }
 }
 
-export default async function CityPage({ params }: CityPageProps) {
+export default async function CityPage({ params, searchParams }: CityPageProps) {
   const cityData = CITIES.find((c) => c.slug === params.city)
   if (!cityData) notFound()
 
+  const activeTab = searchParams.tab === 'upcoming' ? 'upcoming' : 'onsale'
   const now = new Date().toISOString()
+  const sevenDaysFromNow = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString()
   const ninetyDaysFromNow = new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toISOString()
 
   const cityNames: string[] = [cityData.city]
   if (cityData.city === 'New York') cityNames.push('New York City', 'NYC')
 
-  const { data: events, error } = await supabase
-    .from('events')
-    .select('*')
-    .in('venue_city', cityNames)
-    .gte('event_date', now)
-    .lte('event_date', ninetyDaysFromNow)
-    .order('event_date', { ascending: true })
+  let events: Event[] = []
 
-  const safeEvents: Event[] = error ? [] : (events ?? [])
+  if (activeTab === 'onsale') {
+    const { data, error } = await supabase
+      .from('events')
+      .select('*')
+      .in('venue_city', cityNames)
+      .not('onsale_datetime', 'is', null)
+      .gte('onsale_datetime', now)
+      .lte('onsale_datetime', sevenDaysFromNow)
+      .order('onsale_datetime', { ascending: true })
+    events = error ? [] : (data ?? [])
+  } else {
+    const { data, error } = await supabase
+      .from('events')
+      .select('*')
+      .in('venue_city', cityNames)
+      .gte('event_date', now)
+      .lte('event_date', ninetyDaysFromNow)
+      .order('event_date', { ascending: true })
+    events = error ? [] : (data ?? [])
+  }
+
+  const emptyMessage =
+    activeTab === 'onsale'
+      ? `No ticket drops this week for ${cityData.display_name} — check back soon.`
+      : `No concerts found for ${cityData.display_name} yet — check back soon.`
+
+  const countLabel =
+    events.length > 0
+      ? `${events.length} ${activeTab === 'onsale' ? 'drop' : 'upcoming show'}${events.length === 1 ? '' : 's'} in ${cityData.display_name}`
+      : ''
 
   return (
     <div className="space-y-6">
@@ -62,11 +90,13 @@ export default async function CityPage({ params }: CityPageProps) {
         </p>
       </section>
 
+      <Suspense fallback={null}>
+        <TabSwitcher activeTab={activeTab} basePath={`/${params.city}`} />
+      </Suspense>
+
       <div className="flex items-center justify-between">
         <p className="font-body font-light text-sm" style={{ color: '#60A5FA' }}>
-          {safeEvents.length > 0
-            ? `${safeEvents.length} upcoming show${safeEvents.length === 1 ? '' : 's'} in ${cityData.display_name}`
-            : ''}
+          {countLabel}
         </p>
         <a
           href="/"
@@ -78,10 +108,10 @@ export default async function CityPage({ params }: CityPageProps) {
       </div>
 
       <EventsSection
-        events={safeEvents}
-        activeTab="upcoming"
+        events={events}
+        activeTab={activeTab}
         cityName={cityData.city}
-        emptyMessage={`No concerts found for ${cityData.display_name} yet — check back soon.`}
+        emptyMessage={emptyMessage}
       />
     </div>
   )
