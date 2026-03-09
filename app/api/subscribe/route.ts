@@ -39,15 +39,24 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Invalid city selection' }, { status: 400 })
   }
 
-  const { data: location, error: locationError } = await supabase
+  let { data: location, error: locationError } = await supabase
     .from('locations')
     .select('id, display_name, city')
-    .eq('slug', cityEntry.slug)
+    .eq('city', cityEntry.city)
+    .eq('state', cityEntry.state)
     .single()
 
   if (locationError || !location) {
-    console.error('[subscribe] Location lookup failed:', locationError?.message)
-    return NextResponse.json({ error: 'City not found' }, { status: 400 })
+    const { data: fallback, error: fallbackError } = await supabase
+      .from('locations')
+      .select('id, display_name, city')
+      .eq('slug', cityEntry.slug)
+      .single()
+    if (fallbackError || !fallback) {
+      console.error('[subscribe] Location lookup failed for city:', cityEntry.city, cityEntry.state, locationError?.message)
+      return NextResponse.json({ error: 'City not found' }, { status: 400 })
+    }
+    location = fallback
   }
 
   const unsubscribe_token = generateToken()

@@ -41,7 +41,7 @@ function computeBadge(event: Event): Badge | null {
   const isLastChance = eventTs !== null && eventTs > now && eventTs <= fortyEightHoursFromNow
   const isNewDrop = createdTs >= fortyEightHoursAgo && onsaleTs !== null && onsaleTs > now
   const isOnSaleNow = onsaleTs !== null && onsaleTs <= now && eventTs !== null && eventTs > now
-  const isHot = event.price_range_min !== null && event.price_range_min > 150
+  const isHot = event.price_range_min !== null && Number(event.price_range_min) > 150
 
   if (isLastChance) return { label: 'Last Chance', bgColor: '#EF4444', textColor: '#ffffff' }
   if (isNewDrop) return { label: 'New Drop', bgColor: '#FFE500', textColor: '#0a0a0a' }
@@ -78,7 +78,7 @@ export default function EventCard({ event, showOnSaleBox = false }: EventCardPro
         }}
       />
 
-      <div className="relative flex flex-col flex-1 p-5 justify-end gap-2">
+      <div className="relative flex flex-col flex-1 p-5 gap-2">
         {hasTopLine && (
           <div className="flex flex-wrap gap-1.5 items-center">
             {badge && (
@@ -107,6 +107,8 @@ export default function EventCard({ event, showOnSaleBox = false }: EventCardPro
             )}
           </div>
         )}
+
+        <div className="flex-1" />
 
         <h3 className="font-display font-extrabold text-2xl leading-tight" style={{ color: '#ffffff' }}>
           {event.artist_name ?? 'Unknown Artist'}
