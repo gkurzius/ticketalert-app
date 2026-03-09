@@ -371,3 +371,26 @@ Only show a badge on events that genuinely warrant one — not every card needs 
 4. Subscribe CTA cleanup — currently there are two yellow CTAs (Subscribe button and Get Alerts button) that are redundant and cluttered. Consolidate into one clear CTA. Keep the newsletter popup as is. On the main page remove the redundant second CTA or differentiate it visually so they don't compete.
 5. Fix New York City — the city page and API call for New York City is not mapping correctly. Ensure 'New York City' maps to the correct Ticketmaster API parameters (city=New York, stateCode=NY) and the city page loads properly.
 6. Extend upcoming shows window — currently only showing events for the next ~10 days. Increase to 90 days so users searching for artists like Bruce Springsteen see all upcoming shows even if tickets are already on sale. This is critical — showing 'None found' for a show happening in 3 weeks that's already on sale feels broken and loses affiliate revenue.
+
+### [x] Step: Subscribe + Welcome Email Adjustments
+<!-- chat-id: 719938ea-f3ec-4a94-a3e3-2279500599e9 -->
+
+Update the subscribe flow with the following changes:
+1. Remove email confirmation entirely — when a user submits their email and city, mark confirmed = true immediately. No confirmation email, no confirmation link, no /api/confirm route needed.
+2. Instead, send a welcome email immediately on signup via Resend from alerts@ticketalert.co. Use navy background, yellow TicketAlert logo header, DM Sans body font.
+Subject: You're in. 🎟️
+Email body:
+Hey,
+You're on the list. From now on you'll be the first to know when tickets drop for concerts in [city].
+Here's what you'll get every Thursday morning:
+🆕 New on-sales — concerts just announced and going on sale soon in your city, so you can buy before they sell out
+🎵 Coming up this week — shows happening soon in case something catches your eye last minute
+We scan the internet for new events going on-sale in your city. You get the drop before everyone else.
+See what's on sale right now →
+[Button: View Concerts in [city] → links to ticketalert.co/[city]]
+No spam. No filler. No BS. Never miss a drop again.
+Talk soon,
+Griffin
+Founder @ TicketAlert
+P.S. Already 1,000+ music fans across the country never miss a drop. Forward this to a friend who needs it.
+[View in browser]
