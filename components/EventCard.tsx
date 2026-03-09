@@ -38,15 +38,16 @@ function computeBadge(event: Event): Badge | null {
   const eventTs = event.event_date ? new Date(event.event_date).getTime() : null
   const createdTs = new Date(event.created_at).getTime()
 
+  const priceMin = event.price_range_min != null ? parseFloat(String(event.price_range_min)) : null
+  const isHot = priceMin !== null && !isNaN(priceMin) && priceMin > 150
   const isLastChance = eventTs !== null && eventTs > now && eventTs <= fortyEightHoursFromNow
   const isNewDrop = createdTs >= fortyEightHoursAgo && onsaleTs !== null && onsaleTs > now
   const isOnSaleNow = onsaleTs !== null && onsaleTs <= now && eventTs !== null && eventTs > now
-  const isHot = event.price_range_min !== null && Number(event.price_range_min) > 150
 
+  if (isHot) return { label: '🔥', bgColor: '#F97316', textColor: '#ffffff' }
   if (isLastChance) return { label: 'Last Chance', bgColor: '#EF4444', textColor: '#ffffff' }
   if (isNewDrop) return { label: 'New Drop', bgColor: '#FFE500', textColor: '#0a0a0a' }
   if (isOnSaleNow) return { label: 'On Sale Now', bgColor: '#22C55E', textColor: '#ffffff' }
-  if (isHot) return { label: '🔥', bgColor: '#F97316', textColor: '#ffffff' }
   return null
 }
 
