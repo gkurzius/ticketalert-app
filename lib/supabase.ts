@@ -6,7 +6,11 @@ export function getSupabase(): SupabaseClient {
   if (!_client) {
     const supabaseUrl = process.env.SUPABASE_URL ?? 'https://placeholder.supabase.co'
     const supabaseAnonKey = process.env.SUPABASE_ANON_KEY ?? 'placeholder'
-    _client = createClient(supabaseUrl, supabaseAnonKey)
+    _client = createClient(supabaseUrl, supabaseAnonKey, {
+      global: {
+        fetch: (url, options) => fetch(url, { ...options, cache: 'no-store' }),
+      },
+    })
   }
   return _client
 }
