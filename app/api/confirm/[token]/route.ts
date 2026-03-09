@@ -16,7 +16,7 @@ export async function GET(
 
   const { data: subscriber, error: findError } = await supabase
     .from('subscribers')
-    .select('id, email, confirmed, unsubscribe_token, location_id, locations(city, display_name)')
+    .select('id, email, confirmed, unsubscribe_token, city')
     .eq('confirm_token', token)
     .single()
 
@@ -42,9 +42,7 @@ export async function GET(
   const fromEmail = process.env.RESEND_FROM_EMAIL ?? 'alerts@ticketalert.co'
 
   try {
-    const locRaw = subscriber.locations
-    const location = (Array.isArray(locRaw) ? locRaw[0] : locRaw) as { city: string; display_name: string } | null
-    const cityName = location?.city ?? 'your city'
+    const cityName = subscriber.city ?? 'your city'
     const citySlug = CITIES.find((c) => c.city === cityName)?.slug ?? CITIES[0].slug
 
     const html = buildWelcomeEmailHtml({

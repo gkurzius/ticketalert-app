@@ -38,56 +38,13 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Invalid city selection' }, { status: 400 })
   }
 
-  let { data: location, error: locationError } = await supabase
-    .from('locations')
-    .select('id, display_name')
-    .eq('city', cityEntry.city)
-    .eq('state', cityEntry.state)
-    .single()
-
-  if (locationError || !location) {
-    const { data: inserted, error: insertError } = await supabase
-      .from('locations')
-      .insert({
-        city: cityEntry.city,
-        state: cityEntry.state,
-        display_name: cityEntry.display_name,
-      })
-      .select('id, display_name')
-      .single()
-
-    if (insertError || !inserted) {
-      if (insertError?.code === '23505') {
-        const { data: retry } = await supabase
-          .from('locations')
-          .select('id, display_name')
-          .eq('city', cityEntry.city)
-          .eq('state', cityEntry.state)
-          .single()
-        if (retry) {
-          location = retry
-        } else {
-          console.error('[subscribe] Location insert race condition — could not re-fetch')
-          return NextResponse.json({ error: 'Failed to process city. Please try again.' }, { status: 500 })
-        }
-      } else {
-        console.error('[subscribe] Location insert failed — code:', insertError?.code, 'message:', insertError?.message)
-        return NextResponse.json(
-          { error: `Could not create location: ${insertError?.message ?? locationError?.message ?? 'unknown'}` },
-          { status: 500 }
-        )
-      }
-    } else {
-      location = inserted
-    }
-  }
-
   const confirm_token = generateToken()
   const unsubscribe_token = generateToken()
 
   const { error: insertError } = await supabase.from('subscribers').insert({
     email: email.toLowerCase().trim(),
-    location_id: location.id,
+    city: cityEntry.city,
+    state: cityEntry.state,
     confirmed: false,
     confirm_token,
     unsubscribe_token,
@@ -111,7 +68,7 @@ export async function POST(req: NextRequest) {
     await resend.emails.send({
       from: fromEmail,
       to: email.toLowerCase().trim(),
-      subject: `Confirm your TicketAlert subscription for ${location.display_name}`,
+      subject: `Confirm your TicketAlert subscription for ${cityEntry.display_name}`,
       html: `
         <!DOCTYPE html>
         <html>
@@ -160,7 +117,7 @@ export async function POST(req: NextRequest) {
                           Confirm your subscription
                         </h1>
                         <p style="color:#60A5FA;font-size:16px;font-weight:300;margin:0 0 24px;line-height:1.6;">
-                          You signed up for new concert alerts in <strong style="color:#FFE500;">${location.display_name}</strong>. Click the button below to confirm your email address.
+                          You signed up for new concert alerts in <strong style="color:#FFE500;">${cityEntry.display_name}</strong>. Click the button below to confirm your email address.
                         </p>
                         <table cellpadding="0" cellspacing="0" style="margin:0 0 32px;">
                           <tr>

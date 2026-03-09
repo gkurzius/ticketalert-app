@@ -5,14 +5,11 @@ import { getResend } from '@/lib/resend'
 import { buildEmailHtml } from '@/components/EmailTemplate'
 import type { Event } from '@/types'
 
-type SubscriberWithLocation = {
+type SubscriberRow = {
   id: string
   email: string
+  city: string | null
   unsubscribe_token: string | null
-  locations: {
-    city: string
-    display_name: string
-  } | null
 }
 
 async function runNewsletter() {
@@ -42,7 +39,7 @@ async function runNewsletter() {
 
   const { data: subscribersData, error: subscribersError } = await supabase
     .from('subscribers')
-    .select('id, email, unsubscribe_token, locations(city, display_name)')
+    .select('id, email, city, unsubscribe_token')
     .eq('confirmed', true)
     .is('unsubscribed_at', null)
 
@@ -50,7 +47,7 @@ async function runNewsletter() {
     throw new Error(`Failed to fetch subscribers: ${subscribersError.message}`)
   }
 
-  const subscribers: SubscriberWithLocation[] = (subscribersData ?? []) as unknown as SubscriberWithLocation[]
+  const subscribers: SubscriberRow[] = (subscribersData ?? []) as SubscriberRow[]
 
   let sent = 0
   let skipped = 0
@@ -59,13 +56,12 @@ async function runNewsletter() {
   const resend = getResend()
 
   for (const subscriber of subscribers) {
-    const location = subscriber.locations
-    if (!location) {
+    if (!subscriber.city) {
       skipped++
       continue
     }
 
-    const cityEvents = eventsByCity[location.city]
+    const cityEvents = eventsByCity[subscriber.city]
     if (!cityEvents || cityEvents.length === 0) {
       skipped++
       continue
@@ -76,9 +72,11 @@ async function runNewsletter() {
       continue
     }
 
+    const displayName = subscriber.city
+
     try {
       const html = buildEmailHtml({
-        city: location.display_name,
+        city: displayName,
         events: cityEvents,
         unsubscribeToken: subscriber.unsubscribe_token,
         siteUrl,
@@ -87,7 +85,7 @@ async function runNewsletter() {
       await resend.emails.send({
         from: fromEmail,
         to: subscriber.email,
-        subject: `New concerts just announced in ${location.display_name}`,
+        subject: `New concerts just announced in ${displayName}`,
         html,
       })
 
