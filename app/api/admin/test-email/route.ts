@@ -21,6 +21,7 @@ const SAMPLE_EVENTS = [
     image_url: null,
     price_range_min: 35,
     price_range_max: 120,
+    twitter_posted: false,
     created_at: new Date().toISOString(),
   },
 ]

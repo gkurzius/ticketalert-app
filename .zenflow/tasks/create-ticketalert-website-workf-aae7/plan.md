@@ -470,3 +470,28 @@ The /api/ingest route is timing out on Vercel Hobby plan due to the 10 second fu
 Split the ingest into smaller chunks — process 3-4 cities per invocation instead of all 20 at once
 Or add export const maxDuration = 60 to the ingest route config (Vercel allows up to 60 seconds on Hobby plan)
 Whichever approach is faster to implement
+
+### [x] Step: Twitter Automations
+<!-- chat-id: 78ac31bc-8bd3-4ed4-af2b-40c9c641fce3 -->
+
+Build a Twitter/X auto-poster as a new API route /api/twitter-post.
+Functionality:
+
+Query events where onsale_datetime is between now and 7 days from now AND twitter_posted is false or null
+Sort by price_range_min DESC to prioritize highest demand events first
+Cap at 5 tweets per day maximum
+For each selected event generate a tweet in this format:
+
+[Artist Name] just announced [City] 🔥
+Tickets drop [Day] at [Time] ET — don't sleep on this one
+→ ticketalert.co/[city-slug]
+#concerts #[City]
+
+Post each tweet via Twitter API v2 using these environment variables: TWITTER_API_KEY, TWITTER_API_SECRET, TWITTER_ACCESS_TOKEN, TWITTER_ACCESS_TOKEN_SECRET
+Space tweets minimum 2 hours apart using a queue — don't post all 5 at once
+After posting mark event as twitter_posted = true in events table (add this column if it doesn't exist)
+Run automatically on cron schedule every day at 10am ET (15:00 UTC)
+Require CRON_SECRET authorization
+Log each tweet posted and any errors
+
+Also add a manual trigger endpoint so I can test it: POST /api/twitter-post with CRON_SECRET header runs immediately without waiting for cron.

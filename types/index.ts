@@ -24,6 +24,7 @@ export type Event = {
   image_url: string | null
   price_range_min: number | null
   price_range_max: number | null
+  twitter_posted: boolean
   created_at: string
 }
 
