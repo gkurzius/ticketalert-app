@@ -461,3 +461,12 @@ Single event detail page
 On-sale date/time prominently displayed with countdown timer
 Get Tickets button linking to ticketing_url
 Related events
+
+### [x] Step: Vercel Ingest Route
+<!-- chat-id: cb262404-0553-48c2-93c4-fef58c9bac5e -->
+
+The /api/ingest route is timing out on Vercel Hobby plan due to the 10 second function limit. Fix by:
+
+Split the ingest into smaller chunks — process 3-4 cities per invocation instead of all 20 at once
+Or add export const maxDuration = 60 to the ingest route config (Vercel allows up to 60 seconds on Hobby plan)
+Whichever approach is faster to implement

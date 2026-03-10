@@ -7,6 +7,8 @@ import { fetchTicketmasterEvents } from '@/lib/providers/ticketmaster'
 import { toSlug } from '@/lib/slugify'
 import type { NormalizedEvent } from '@/lib/providers/normalize'
 
+export const maxDuration = 60
+
 function formatEventDate(dateStr: string | null): string {
   if (!dateStr) return 'Date TBA'
   const date = new Date(dateStr)
