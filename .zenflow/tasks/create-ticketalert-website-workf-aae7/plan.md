@@ -425,3 +425,39 @@ So we built TicketAlert. We scan the internet for new concert announcements and 
 Live music should be for everyone. Not just the people who happened to check Ticketmaster at the right moment.
 No noise. No algorithm. Just the drops and shows that matter, every week.
 Never miss a drop again.
+
+### [x] Step: Growth of SEO Pages
+<!-- chat-id: 3773e2cc-7d57-4aee-984c-22180c405b43 -->
+
+Build the following SEO page types, all dynamically generated from existing events data in Supabase:
+1. Artist pages at /artist/[artist-slug]
+
+Page title: "[Artist Name] Tickets & Tour Dates — TicketAlert"
+Shows all upcoming events for that artist across all cities
+On-sale dates prominently displayed
+Get Tickets affiliate links for each event
+If events exist: show them with full detail
+If no events exist: show "No upcoming shows found for [Artist]" with email capture
+Email capture CTA on every artist page: "Get notified when [Artist] announces new shows" with email field and Get Alerts button
+Store artist follows in a new Supabase table artist_follows with columns: email, artist_name, artist_slug, created_at
+When ingest finds a new event matching a followed artist, trigger an instant Resend email: Subject: "[Artist] just announced a [City] show 🎟️" with event details, on-sale date/time, and Get Tickets button linking to ticketing_url
+Auto-generate artist slug from artist_name field (lowercase, hyphens)
+
+2. Venue pages at /venue/[venue-slug]
+
+Page title: "[Venue Name] Events & Tickets — TicketAlert"
+Shows all upcoming events at that venue
+Get Tickets affiliate links
+If events exist: show them with full detail
+If no events exist: show "No upcoming events found at [Venue]" with email capture
+Email capture CTA: "Get notified about new events at [Venue]" with email field and Get Alerts button
+Store venue follows in a new Supabase table venue_follows with columns: email, venue_name, venue_slug, created_at
+When ingest finds a new event matching a followed venue, trigger an instant Resend email: Subject: "New show announced at [Venue] 🎟️" with event details, on-sale date/time, and Get Tickets button
+
+3. Event pages at /event/[artist-slug]-[city-slug]-[date]
+
+Page title: "[Artist] in [City] — Tickets & On-Sale Date — TicketAlert"
+Single event detail page
+On-sale date/time prominently displayed with countdown timer
+Get Tickets button linking to ticketing_url
+Related events

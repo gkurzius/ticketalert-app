@@ -45,3 +45,19 @@ export type Meta = {
   value: string | null
   updated_at: string
 }
+
+export type ArtistFollow = {
+  id: string
+  email: string
+  artist_name: string
+  artist_slug: string
+  created_at: string
+}
+
+export type VenueFollow = {
+  id: string
+  email: string
+  venue_name: string
+  venue_slug: string
+  created_at: string
+}
