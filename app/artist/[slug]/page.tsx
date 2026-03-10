@@ -1,8 +1,7 @@
 import type { Metadata } from 'next'
-import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
-import { toSlug } from '@/lib/slugify'
+import { slugMatchesArtist, formatSlugAsTitle } from '@/lib/slugify'
 import EventCard from '@/components/EventCard'
 import ArtistFollowForm from '@/components/ArtistFollowForm'
 import type { Event } from '@/types'
@@ -11,19 +10,25 @@ interface ArtistPageProps {
   params: { slug: string }
 }
 
-export async function generateMetadata({ params }: ArtistPageProps): Promise<Metadata> {
-  const { data: events } = await supabase
+async function getArtistEvents(slug: string): Promise<Event[]> {
+  const now = new Date().toISOString()
+
+  const { data: allEvents } = await supabase
     .from('events')
-    .select('artist_name')
+    .select('*')
     .not('artist_name', 'is', null)
-    .gte('event_date', new Date().toISOString())
-    .limit(200)
+    .gte('event_date', now)
+    .order('event_date', { ascending: true })
+    .limit(1000)
 
-  const match = (events ?? []).find(
-    (e) => e.artist_name && toSlug(e.artist_name) === params.slug
+  return (allEvents ?? []).filter(
+    (e: Event) => e.artist_name && slugMatchesArtist(slug, e.artist_name)
   )
+}
 
-  const artistName = match?.artist_name ?? params.slug
+export async function generateMetadata({ params }: ArtistPageProps): Promise<Metadata> {
+  const events = await getArtistEvents(params.slug)
+  const artistName = events[0]?.artist_name ?? formatSlugAsTitle(params.slug)
 
   return {
     title: `${artistName} Tickets & Tour Dates — TicketAlert`,
@@ -32,25 +37,11 @@ export async function generateMetadata({ params }: ArtistPageProps): Promise<Met
 }
 
 export default async function ArtistPage({ params }: ArtistPageProps) {
-  const now = new Date().toISOString()
-  const ninetyDaysFromNow = new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toISOString()
-
-  const { data: allEvents } = await supabase
-    .from('events')
-    .select('*')
-    .not('artist_name', 'is', null)
-    .gte('event_date', now)
-    .lte('event_date', ninetyDaysFromNow)
-    .order('event_date', { ascending: true })
-    .limit(500)
-
-  const events: Event[] = (allEvents ?? []).filter(
-    (e: Event) => e.artist_name && toSlug(e.artist_name) === params.slug
-  )
-
+  const events = await getArtistEvents(params.slug)
   const artistName = events[0]?.artist_name ?? null
+  const displayName = artistName ?? formatSlugAsTitle(params.slug)
 
-  if (!artistName && events.length === 0) {
+  if (events.length === 0) {
     return (
       <div className="max-w-4xl mx-auto space-y-8">
         <div>
@@ -75,7 +66,7 @@ export default async function ArtistPage({ params }: ArtistPageProps) {
           <p className="font-body font-light text-base mb-8" style={{ color: '#60A5FA' }}>
             We couldn&apos;t find any upcoming concerts for this artist. Check back soon — new shows get added every day.
           </p>
-          <ArtistFollowForm artistName={params.slug.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')} />
+          <ArtistFollowForm artistName={displayName} />
         </div>
       </div>
     )
@@ -108,30 +99,13 @@ export default async function ArtistPage({ params }: ArtistPageProps) {
         </p>
       </section>
 
-      {events.length > 0 ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {events.map((event) => (
-            <EventCard key={event.id} event={event} showOnSaleBox />
-          ))}
-        </div>
-      ) : (
-        <div
-          className="rounded-xl border p-16 text-center"
-          style={{ backgroundColor: '#0f1829', borderColor: '#1e3a5f' }}
-        >
-          <p
-            className="font-display font-extrabold uppercase text-2xl mb-2"
-            style={{ color: '#FFE500' }}
-          >
-            No upcoming shows
-          </p>
-          <p className="font-body font-light text-base" style={{ color: '#60A5FA' }}>
-            No upcoming concerts found for {artistName} — check back soon.
-          </p>
-        </div>
-      )}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        {events.map((event) => (
+          <EventCard key={event.id} event={event} showOnSaleBox />
+        ))}
+      </div>
 
-      {artistName && <ArtistFollowForm artistName={artistName} />}
+      <ArtistFollowForm artistName={artistName!} />
     </div>
   )
 }
