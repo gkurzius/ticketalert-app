@@ -495,3 +495,44 @@ Require CRON_SECRET authorization
 Log each tweet posted and any errors
 
 Also add a manual trigger endpoint so I can test it: POST /api/twitter-post with CRON_SECRET header runs immediately without waiting for cron.
+
+### [x] Step: Update Email Newsletter
+<!-- chat-id: b819623f-19e2-45b4-b719-da9b27b29187 -->
+
+Redesign the weekly newsletter email to feel clean and editorial, not like a ticket marketplace ad. Here's the exact design direction:
+Overall style:
+
+Navy background, white text — keep existing brand colors
+Clean, minimal — lots of breathing room between events
+No boxes or cards around individual events — just clean list format
+Single thin divider line between events
+
+Header:
+
+TicketAlert logo centered at top
+Subheader: 'Your weekly concert drop — [City]' in small gray text
+
+Section 1 — On Sale This Week:
+
+Section label: '🎟️ ON SALE THIS WEEK' in small yellow uppercase tracking
+Each event:
+
+Artist name in large white bold text
+Venue, City — Date at Time ET in small gray text on same or next line
+'Get Tickets →' as a simple text link in yellow, not a button
+Thin divider line below each event
+
+
+'See all on-sales →' text link at bottom of section
+
+Section 2 — Upcoming Shows:
+
+Section label: '🎵 UPCOMING SHOWS' in small yellow uppercase tracking
+Same format as above
+'See all shows →' text link at bottom of section
+
+Footer:
+
+'Never miss a drop again.' in small white text centered
+Unsubscribe link in small gray text — legally required
+No clutter, no social icons yet"*

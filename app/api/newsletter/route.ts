@@ -3,51 +3,81 @@ import { isAuthorized } from '@/lib/auth'
 import { supabase } from '@/lib/supabase'
 import { getResend } from '@/lib/resend'
 import { buildEmailHtml } from '@/components/EmailTemplate'
+import { CITIES } from '@/lib/cities'
 import type { Event } from '@/types'
+
+type LocationObj = {
+  city: string
+  display_name: string
+  slug: string
+}
 
 type SubscriberRow = {
   id: string
   email: string
-  city: string | null
   unsubscribe_token: string | null
+  locations: LocationObj | LocationObj[] | null
 }
 
 async function runNewsletter() {
-  const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString()
+  const now = new Date()
+  const sevenDaysFromNow = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000).toISOString()
+  const nowIso = now.toISOString()
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://ticketalert.co'
   const fromEmail = process.env.RESEND_FROM_EMAIL ?? 'alerts@ticketalert.co'
 
-  const { data: freshEventsData, error: eventsError } = await supabase
-    .from('events')
-    .select('*')
-    .gte('created_at', sevenDaysAgo)
-    .order('event_date', { ascending: true })
+  const [onSaleResult, upcomingResult, subscribersResult] = await Promise.all([
+    supabase
+      .from('events')
+      .select('*')
+      .gte('onsale_datetime', nowIso)
+      .lte('onsale_datetime', sevenDaysFromNow)
+      .gte('event_date', nowIso)
+      .order('onsale_datetime', { ascending: true }),
 
-  if (eventsError) {
-    throw new Error(`Failed to fetch fresh events: ${eventsError.message}`)
+    supabase
+      .from('events')
+      .select('*')
+      .gte('event_date', nowIso)
+      .order('event_date', { ascending: true }),
+
+    supabase
+      .from('subscribers')
+      .select('id, email, unsubscribe_token, locations(city, display_name, slug)')
+      .eq('confirmed', true)
+      .is('unsubscribed_at', null),
+  ])
+
+  if (onSaleResult.error) {
+    throw new Error(`Failed to fetch on-sale events: ${onSaleResult.error.message}`)
+  }
+  if (upcomingResult.error) {
+    throw new Error(`Failed to fetch upcoming events: ${upcomingResult.error.message}`)
+  }
+  if (subscribersResult.error) {
+    throw new Error(`Failed to fetch subscribers: ${subscribersResult.error.message}`)
   }
 
-  const freshEvents: Event[] = freshEventsData ?? []
+  const onSaleEvents: Event[] = onSaleResult.data ?? []
+  const upcomingEvents: Event[] = upcomingResult.data ?? []
 
-  const eventsByCity: Record<string, Event[]> = {}
-  for (const event of freshEvents) {
+  const onSaleByCity: Record<string, Event[]> = {}
+  for (const event of onSaleEvents) {
     const city = event.venue_city
     if (!city) continue
-    if (!eventsByCity[city]) eventsByCity[city] = []
-    eventsByCity[city].push(event)
+    if (!onSaleByCity[city]) onSaleByCity[city] = []
+    onSaleByCity[city].push(event)
   }
 
-  const { data: subscribersData, error: subscribersError } = await supabase
-    .from('subscribers')
-    .select('id, email, city, unsubscribe_token')
-    .eq('confirmed', true)
-    .is('unsubscribed_at', null)
-
-  if (subscribersError) {
-    throw new Error(`Failed to fetch subscribers: ${subscribersError.message}`)
+  const upcomingByCity: Record<string, Event[]> = {}
+  for (const event of upcomingEvents) {
+    const city = event.venue_city
+    if (!city) continue
+    if (!upcomingByCity[city]) upcomingByCity[city] = []
+    upcomingByCity[city].push(event)
   }
 
-  const subscribers: SubscriberRow[] = (subscribersData ?? []) as SubscriberRow[]
+  const subscribers: SubscriberRow[] = (subscribersResult.data ?? []) as unknown as SubscriberRow[]
 
   let sent = 0
   let skipped = 0
@@ -56,13 +86,11 @@ async function runNewsletter() {
   const resend = getResend()
 
   for (const subscriber of subscribers) {
-    if (!subscriber.city) {
-      skipped++
-      continue
-    }
-
-    const cityEvents = eventsByCity[subscriber.city]
-    if (!cityEvents || cityEvents.length === 0) {
+    const rawLocation = subscriber.locations
+    const location: LocationObj | null = Array.isArray(rawLocation)
+      ? (rawLocation[0] ?? null)
+      : rawLocation
+    if (!location) {
       skipped++
       continue
     }
@@ -72,12 +100,25 @@ async function runNewsletter() {
       continue
     }
 
-    const displayName = subscriber.city
+    const cityName = location.city
+    const cityDisplayName = location.display_name
+    const citySlugEntry = CITIES.find(c => c.city === cityName || c.display_name === cityDisplayName)
+    const citySlug = citySlugEntry?.slug ?? location.slug ?? cityName.toLowerCase().replace(/\s+/g, '-')
+
+    const cityOnSale = onSaleByCity[cityName] ?? []
+    const cityUpcoming = upcomingByCity[cityName] ?? []
+
+    if (cityOnSale.length === 0 && cityUpcoming.length === 0) {
+      skipped++
+      continue
+    }
 
     try {
       const html = buildEmailHtml({
-        city: displayName,
-        events: cityEvents,
+        city: cityDisplayName,
+        citySlug,
+        onSaleEvents: cityOnSale,
+        upcomingEvents: cityUpcoming.slice(0, 10),
         unsubscribeToken: subscriber.unsubscribe_token,
         siteUrl,
       })
@@ -85,7 +126,7 @@ async function runNewsletter() {
       await resend.emails.send({
         from: fromEmail,
         to: subscriber.email,
-        subject: `New concerts just announced in ${displayName}`,
+        subject: `Your weekly concert drop — ${cityDisplayName}`,
         html,
       })
 

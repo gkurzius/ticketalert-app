@@ -2,7 +2,9 @@ import type { Event } from '@/types'
 
 interface EmailTemplateProps {
   city: string
-  events: Event[]
+  citySlug: string
+  onSaleEvents: Event[]
+  upcomingEvents: Event[]
   unsubscribeToken: string
   siteUrl: string
 }
@@ -17,6 +19,27 @@ function formatEventDate(dateStr: string | null): string {
     year: 'numeric',
     timeZone: 'UTC',
   })
+}
+
+function formatOnSaleDate(dateStr: string | null): string {
+  if (!dateStr) return ''
+  const date = new Date(dateStr)
+  const dayPart = date.toLocaleDateString('en-US', {
+    weekday: 'short',
+    month: 'short',
+    day: 'numeric',
+    timeZone: 'America/New_York',
+  })
+  const timePart = date
+    .toLocaleTimeString('en-US', {
+      hour: 'numeric',
+      minute: '2-digit',
+      hour12: true,
+      timeZone: 'America/New_York',
+    })
+    .toLowerCase()
+    .replace(':00', '')
+  return `${dayPart} at ${timePart} ET`
 }
 
 const logoSvg = `<svg width="44" height="36" viewBox="0 0 44 36" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -34,47 +57,48 @@ const logoSvg = `<svg width="44" height="36" viewBox="0 0 44 36" fill="none" xml
   <path d="M26 30 L26 34" stroke="#FFE500" stroke-width="2.5" stroke-linecap="round"/>
 </svg>`
 
-function buildEventRow(event: Event, siteUrl: string): string {
+function buildEventListRow(event: Event, siteUrl: string, showOnSaleDate: boolean): string {
   const eventUrl = `${siteUrl}/events/${event.id}`
   const ticketUrl = event.ticketing_url ?? eventUrl
   const dateStr = formatEventDate(event.event_date)
   const venue = [event.venue_name, event.venue_city, event.venue_state].filter(Boolean).join(', ')
-  const price = event.price_range_min ? `From $${Math.round(event.price_range_min)}` : ''
+  const onSaleLine =
+    showOnSaleDate && event.onsale_datetime
+      ? `<div style="color:#94a3b8;font-size:12px;font-weight:300;margin-bottom:10px;">On Sale ${formatOnSaleDate(event.onsale_datetime)}</div>`
+      : ''
 
   return `
     <tr>
       <td style="padding:20px 0;border-bottom:1px solid #1e3a5f;">
+        <div style="color:#ffffff;font-size:18px;font-weight:700;margin-bottom:4px;line-height:1.2;">${event.artist_name ?? 'Unknown Artist'}</div>
+        <div style="color:#94a3b8;font-size:13px;font-weight:300;margin-bottom:10px;">${venue} &mdash; ${dateStr}</div>
+        ${onSaleLine}
+        <a href="${ticketUrl}" target="_blank" rel="noopener noreferrer" style="color:#FFE500;font-size:13px;font-weight:500;text-decoration:none;">Get Tickets &rarr;</a>
+      </td>
+    </tr>
+  `
+}
+
+function buildSection(
+  label: string,
+  events: Event[],
+  seeAllUrl: string,
+  seeAllLabel: string,
+  siteUrl: string,
+  showOnSaleDate: boolean,
+): string {
+  if (events.length === 0) return ''
+  const rows = events.map(e => buildEventListRow(e, siteUrl, showOnSaleDate)).join('')
+  return `
+    <tr>
+      <td style="padding:32px 0 0;">
+        <div style="color:#FFE500;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.15em;margin-bottom:4px;">${label}</div>
         <table width="100%" cellpadding="0" cellspacing="0">
-          <tr>
-            <td>
-              <table cellpadding="0" cellspacing="0" style="margin-bottom:6px;">
-                <tr>
-                  <td style="background-color:#FFE500;padding:2px 8px;border-radius:4px;">
-                    <span style="color:#0a0a0a;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:0.1em;">New Drop</span>
-                  </td>
-                  ${event.genre ? `<td style="padding-left:8px;">
-                    <span style="color:#60A5FA;font-size:11px;font-weight:300;text-transform:uppercase;letter-spacing:0.08em;">${event.genre}</span>
-                  </td>` : ''}
-                </tr>
-              </table>
-              <div style="color:#ffffff;font-size:20px;font-weight:800;text-transform:uppercase;letter-spacing:0.03em;margin-bottom:4px;">
-                ${event.artist_name ?? 'Unknown Artist'}
-              </div>
-              <div style="color:#60A5FA;font-size:14px;font-weight:300;margin-bottom:4px;">${venue}</div>
-              <div style="color:#94a3b8;font-size:13px;font-weight:300;margin-bottom:${price ? '4px' : '12px'}">${dateStr}</div>
-              ${price ? `<div style="color:#FFE500;font-size:13px;font-weight:400;margin-bottom:12px;">${price}</div>` : ''}
-              <table cellpadding="0" cellspacing="0">
-                <tr>
-                  <td style="border-radius:6px;background-color:#3B82F6;">
-                    <a href="${ticketUrl}" target="_blank" rel="noopener noreferrer" style="display:inline-block;padding:10px 20px;color:#ffffff;font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;text-decoration:none;">
-                      Get Tickets &rarr;
-                    </a>
-                  </td>
-                </tr>
-              </table>
-            </td>
-          </tr>
+          ${rows}
         </table>
+        <div style="padding-top:16px;">
+          <a href="${seeAllUrl}" target="_blank" rel="noopener noreferrer" style="color:#60A5FA;font-size:13px;font-weight:400;text-decoration:none;">${seeAllLabel} &rarr;</a>
+        </div>
       </td>
     </tr>
   `
@@ -205,17 +229,34 @@ export function buildWelcomeEmailHtml({ city, citySlug, unsubscribeToken, siteUr
 </html>`
 }
 
-export function buildEmailHtml({ city, events, unsubscribeToken, siteUrl }: EmailTemplateProps): string {
+export function buildEmailHtml({ city, citySlug, onSaleEvents, upcomingEvents, unsubscribeToken, siteUrl }: EmailTemplateProps): string {
   const year = new Date().getFullYear()
   const unsubscribeUrl = `${siteUrl}/unsubscribe/${unsubscribeToken}`
-  const eventRows = events.map(e => buildEventRow(e, siteUrl)).join('')
+  const cityPageUrl = `${siteUrl}/${citySlug}`
+
+  const onSaleSection = buildSection(
+    '🎟️ ON SALE THIS WEEK',
+    onSaleEvents,
+    cityPageUrl,
+    'See all on-sales',
+    siteUrl,
+    true,
+  )
+  const upcomingSection = buildSection(
+    '🎵 UPCOMING SHOWS',
+    upcomingEvents,
+    cityPageUrl,
+    'See all shows',
+    siteUrl,
+    false,
+  )
 
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>New concerts just announced in ${city}</title>
+  <title>Your weekly concert drop — ${city}</title>
 </head>
 <body style="margin:0;padding:0;background-color:#0B1120;">
   <table width="100%" cellpadding="0" cellspacing="0" style="background-color:#0B1120;padding:40px 0;">
@@ -225,10 +266,10 @@ export function buildEmailHtml({ city, events, unsubscribeToken, siteUrl }: Emai
 
           <!-- Header / Logo -->
           <tr>
-            <td style="padding:32px 32px 24px;background-color:#0B1120;border-bottom:1px solid #1e3a5f;">
-              <table cellpadding="0" cellspacing="0">
+            <td style="padding:32px 32px 20px;background-color:#0B1120;text-align:center;border-bottom:1px solid #1e3a5f;">
+              <table cellpadding="0" cellspacing="0" style="margin:0 auto 8px;">
                 <tr>
-                  <td style="padding-right:12px;vertical-align:middle;">
+                  <td style="padding-right:10px;vertical-align:middle;">
                     ${logoSvg}
                   </td>
                   <td style="vertical-align:middle;">
@@ -239,38 +280,29 @@ export function buildEmailHtml({ city, events, unsubscribeToken, siteUrl }: Emai
                   </td>
                 </tr>
               </table>
+              <div style="color:#94a3b8;font-size:12px;font-weight:300;letter-spacing:0.05em;margin-top:12px;">Your weekly concert drop &mdash; ${city}</div>
             </td>
           </tr>
 
-          <!-- Headline -->
+          <!-- Content -->
           <tr>
-            <td style="padding:32px 32px 0;background-color:#0f1829;border-left:1px solid #1e3a5f;border-right:1px solid #1e3a5f;">
-              <h1 style="color:#ffffff;font-size:26px;font-weight:800;text-transform:uppercase;margin:0 0 8px;letter-spacing:0.03em;line-height:1.2;">
-                New concerts just announced in ${city} this week
-              </h1>
-              <p style="color:#60A5FA;font-size:15px;font-weight:300;margin:0 0 8px;line-height:1.6;">
-                Never be the last to know — here are the latest shows just added for your city.
-              </p>
-            </td>
-          </tr>
-
-          <!-- Events -->
-          <tr>
-            <td style="padding:0 32px 24px;background-color:#0f1829;border-left:1px solid #1e3a5f;border-right:1px solid #1e3a5f;">
+            <td style="padding:0 32px 32px;background-color:#0B1120;border-left:1px solid #1e3a5f;border-right:1px solid #1e3a5f;">
               <table width="100%" cellpadding="0" cellspacing="0">
-                ${eventRows}
+                ${onSaleSection}
+                ${upcomingSection}
               </table>
             </td>
           </tr>
 
           <!-- Footer -->
           <tr>
-            <td style="padding:24px 32px;background-color:#0B1120;border:1px solid #1e3a5f;border-top:1px solid #1e3a5f;">
-              <p style="color:#60A5FA;font-size:12px;font-weight:300;margin:0 0 8px;text-align:center;line-height:1.6;">
-                You're receiving this because you subscribed to TicketAlert alerts for ${city}.
+            <td style="padding:24px 32px;background-color:#0B1120;border:1px solid #1e3a5f;border-top:1px solid #1e3a5f;text-align:center;">
+              <p style="color:#ffffff;font-size:13px;font-weight:300;margin:0 0 12px;line-height:1.6;">
+                Never miss a drop again.
               </p>
-              <p style="color:#60A5FA;font-size:12px;font-weight:300;margin:0;text-align:center;">
-                <a href="${unsubscribeUrl}" style="color:#60A5FA;text-decoration:underline;">Unsubscribe</a>
+              <p style="color:#64748b;font-size:12px;font-weight:300;margin:0;line-height:1.6;">
+                You're receiving this because you subscribed to TicketAlert alerts for ${city}.<br />
+                <a href="${unsubscribeUrl}" style="color:#64748b;text-decoration:underline;">Unsubscribe</a>
                 &nbsp;&mdash;&nbsp;
                 &copy; ${year} TicketAlert
               </p>

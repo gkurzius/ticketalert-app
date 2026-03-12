@@ -43,7 +43,9 @@ export async function POST(req: NextRequest) {
     const resend = getResend()
     const html = buildEmailHtml({
       city: 'Boston, MA',
-      events: SAMPLE_EVENTS,
+      citySlug: 'boston',
+      onSaleEvents: SAMPLE_EVENTS,
+      upcomingEvents: SAMPLE_EVENTS,
       unsubscribeToken: 'test-unsubscribe-token',
       siteUrl,
     })
@@ -51,7 +53,7 @@ export async function POST(req: NextRequest) {
     await resend.emails.send({
       from: fromEmail,
       to: adminEmail,
-      subject: '[TEST] New concerts just announced in Boston, MA',
+      subject: '[TEST] Your weekly concert drop — Boston, MA',
       html,
     })
 
