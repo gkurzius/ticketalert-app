@@ -9,9 +9,22 @@ export function toSlug(name: string): string {
     .replace(/-+/g, '-')
 }
 
-export function slugMatchesArtist(slug: string, artistName: string): boolean {
-  const fullSlug = toSlug(artistName)
-  return fullSlug === slug || fullSlug.startsWith(slug + '-')
+export function cleanArtistName(name: string): string {
+  return name
+    .split(/:\s*|\s+[-–—]\s+|\s+with\s+|\s+presented\s+by\s+/i)[0]
+    .trim()
+}
+
+export function toArtistPageSlug(artistName: string): string {
+  return toSlug(cleanArtistName(artistName)) + '-tickets'
+}
+
+export function artistPageSlugToSearchSlug(pageSlug: string): string {
+  return pageSlug.replace(/-tickets$/, '')
+}
+
+export function slugMatchesArtist(searchSlug: string, artistName: string): boolean {
+  return toSlug(cleanArtistName(artistName)) === searchSlug
 }
 
 export function formatSlugAsTitle(slug: string): string {

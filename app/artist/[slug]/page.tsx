@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
-import { slugMatchesArtist, formatSlugAsTitle } from '@/lib/slugify'
+import { slugMatchesArtist, artistPageSlugToSearchSlug, formatSlugAsTitle } from '@/lib/slugify'
 import EventCard from '@/components/EventCard'
 import ArtistFollowForm from '@/components/ArtistFollowForm'
 import type { Event } from '@/types'
@@ -10,7 +10,8 @@ interface ArtistPageProps {
   params: { slug: string }
 }
 
-async function getArtistEvents(slug: string): Promise<Event[]> {
+async function getArtistEvents(pageSlug: string): Promise<Event[]> {
+  const searchSlug = artistPageSlugToSearchSlug(pageSlug)
   const now = new Date().toISOString()
 
   const { data: allEvents } = await supabase
@@ -22,24 +23,24 @@ async function getArtistEvents(slug: string): Promise<Event[]> {
     .limit(1000)
 
   return (allEvents ?? []).filter(
-    (e: Event) => e.artist_name && slugMatchesArtist(slug, e.artist_name)
+    (e: Event) => e.artist_name && slugMatchesArtist(searchSlug, e.artist_name)
   )
 }
 
 export async function generateMetadata({ params }: ArtistPageProps): Promise<Metadata> {
   const events = await getArtistEvents(params.slug)
-  const artistName = events[0]?.artist_name ?? formatSlugAsTitle(params.slug)
+  const fullName = events[0]?.artist_name ?? formatSlugAsTitle(params.slug.replace(/-tickets$/, ''))
 
   return {
-    title: `${artistName} Tickets & Tour Dates — TicketAlert`,
-    description: `Find upcoming ${artistName} concerts and tour dates. Get notified when ${artistName} announces new shows.`,
+    title: `${fullName} Tickets & Tour Dates — TicketAlert`,
+    description: `Find upcoming ${fullName} concerts and tour dates. Get notified when ${fullName} announces new shows.`,
   }
 }
 
 export default async function ArtistPage({ params }: ArtistPageProps) {
   const events = await getArtistEvents(params.slug)
   const artistName = events[0]?.artist_name ?? null
-  const displayName = artistName ?? formatSlugAsTitle(params.slug)
+  const displayName = artistName ?? formatSlugAsTitle(params.slug.replace(/-tickets$/, ''))
 
   if (events.length === 0) {
     return (
