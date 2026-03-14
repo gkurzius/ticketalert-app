@@ -11,7 +11,7 @@ export function toSlug(name: string): string {
 
 export function cleanArtistName(name: string): string {
   return name
-    .split(/:\s*|\s+[-–—]\s+|\s+with\s+|\s+presented\s+by\s+/i)[0]
+    .split(/:\s*|\s+[-–—]\s+|\s+with\s+|\s+feat(?:uring)?\.?\s+|\s+presented\s+by\s+/i)[0]
     .trim()
 }
 

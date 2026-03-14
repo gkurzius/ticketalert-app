@@ -12,15 +12,16 @@ interface ArtistPageProps {
 
 async function getArtistEvents(pageSlug: string): Promise<Event[]> {
   const searchSlug = artistPageSlugToSearchSlug(pageSlug)
+  const nameHint = searchSlug.replace(/-/g, ' ')
   const now = new Date().toISOString()
 
   const { data: allEvents } = await supabase
     .from('events')
     .select('*')
     .not('artist_name', 'is', null)
+    .ilike('artist_name', `${nameHint}%`)
     .gte('event_date', now)
     .order('event_date', { ascending: true })
-    .limit(1000)
 
   return (allEvents ?? []).filter(
     (e: Event) => e.artist_name && slugMatchesArtist(searchSlug, e.artist_name)

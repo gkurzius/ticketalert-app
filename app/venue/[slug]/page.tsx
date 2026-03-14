@@ -12,18 +12,20 @@ interface VenuePageProps {
 }
 
 export async function generateMetadata({ params }: VenuePageProps): Promise<Metadata> {
+  const nameHint = params.slug.replace(/-/g, ' ')
   const { data: events } = await supabase
     .from('events')
     .select('venue_name')
     .not('venue_name', 'is', null)
+    .ilike('venue_name', `${nameHint}%`)
     .gte('event_date', new Date().toISOString())
-    .limit(200)
+    .limit(10)
 
   const match = (events ?? []).find(
     (e) => e.venue_name && toSlug(e.venue_name) === params.slug
   )
 
-  const venueName = match?.venue_name ?? params.slug
+  const venueName = match?.venue_name ?? params.slug.replace(/-/g, ' ')
 
   return {
     title: `${venueName} Events & Tickets — TicketAlert`,
@@ -33,16 +35,15 @@ export async function generateMetadata({ params }: VenuePageProps): Promise<Meta
 
 export default async function VenuePage({ params }: VenuePageProps) {
   const now = new Date().toISOString()
-  const ninetyDaysFromNow = new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toISOString()
+  const nameHint = params.slug.replace(/-/g, ' ')
 
   const { data: allEvents } = await supabase
     .from('events')
     .select('*')
     .not('venue_name', 'is', null)
+    .ilike('venue_name', `${nameHint}%`)
     .gte('event_date', now)
-    .lte('event_date', ninetyDaysFromNow)
     .order('event_date', { ascending: true })
-    .limit(500)
 
   const events: Event[] = (allEvents ?? []).filter(
     (e: Event) => e.venue_name && toSlug(e.venue_name) === params.slug
